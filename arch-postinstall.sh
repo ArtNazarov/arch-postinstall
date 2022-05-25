@@ -1,5 +1,48 @@
  echo "Arch linux post install script"
  echo "author: artem@nazarow.ru, 2022"
+ 
+ 
+# ---------- KEYS  -----------
+
+echo "INSTALL KEYS (NEED AWAIT LONG TIME)? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+	sudo pacman-key --init               
+	sudo pacman-key --populate archlinux  
+	sudo pacman-key --refresh-keys        
+	sudo pacman -Sy                       
+else
+        echo "skipped keys update"
+fi 
+
+# ---------- MIRRORS CHANGE -----------
+
+echo "change mirrors ? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+	sudo pacman -S reflector rsync curl   
+	sudo reflector --verbose --country 'Russia' -l 25 --sort rate --save /etc/pacman.d/mirrorlist
+                     
+else
+        echo "skipped mirrors setup"
+fi 
+
+
+
+# ---------- MIRRORS CHANGE -----------
+
+echo "Update software (recommended)? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+	sudo pacman -Suy  
+                     
+else
+        echo "skipped update"
+fi 
+
 
 # ---------- MAKE TOOLS  -----------
 
@@ -11,9 +54,25 @@ if [[ $input == "Y" || $input == "y" ]]; then
 	sudo pacman -Sy gcc
 	sudo pacman -Sy automake
 	sudo pacman -Sy base-devel
+	sudo pacman -Sy git
 else
         echo "skipped make tools install"
 fi
+
+
+# ---------- SYSTEM TOOLS  -----------
+
+echo "INSTALL SYSTEM TOOLS? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+	sudo pacman -S gvfs 
+	sudo pacman -S ccache 
+	sudo pacman -S grub-customizer 
+else
+        echo "skipped SYSTEM TOOLS install"
+fi
+ 
 
 # -------------NETWORK -------------
 
@@ -128,6 +187,20 @@ else
 fi
 
 
+# ------------ update grub ------
+
+
+cd ~
+echo "Update grub (Y if install kernel) [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+
+	sudo grub-mkconfig -o /boot/grub/grub.cfg 
+
+else
+        echo "skipped grub update"
+fi
 
 
 # ---------- FLATPAK SOFT  -----------
