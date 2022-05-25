@@ -15,16 +15,120 @@ else
         echo "skipped make tools install"
 fi
 
-# --------------------------
+# -------------NETWORK -------------
 
 echo "INSTALL NETWORKING TOOLS (RECOMMENDED)? [Y/N]?"
 echo "Confirm [Y,n]"
 read input
 if [[ $input == "Y" || $input == "y" ]]; then
 		sudo pacman -Syu wpa_supplicant dhcpd
+		echo "Tuning network manager"
+		sudo systemctl mask NetworkManager-wait-online.service
+
+		
 else
         echo "skipped networking install"
 fi
+
+# ---------- proc frequency ----------
+cd ~
+echo "INSTALL PROC FREQ TOOLS (RECOMMENDED)? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+
+		sudo pacman -S cpupower                        
+		sudo cpupower frequency-set -g performance  
+		git clone https://aur.archlinux.org/cpupower-gui.git      # Скачиваем исходники
+		cd cpupower-gui                                           # Переходим в директорию
+		makepkg -sric  
+		
+		
+else
+        echo "skipped PROC FREQ install"
+fi
+cd -
+
+
+# ---------- proc frequency ----------
+cd ~
+echo "INSTALL AUTO FREQ TOOLS ? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+
+		git clone https://aur.archlinux.org/auto-cpufreq-git.git   
+		cd auto-cpufreq-git                                        
+		makepkg -sric                                              
+		systemctl enable auto-cpufreq                           
+		systemctl start auto-cpufreq   
+
+else
+        echo "skipped AUTO FREQ install"
+fi
+cd -
+
+# ------------ INSTALL ZEN KERNEL ------
+
+
+cd ~
+echo "INSTALL ZEN KERNEL ? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+
+		sudo pacman -S linux-zen linux-zen-headers  
+
+else
+        echo "skipped ZEN KERNEL install"
+fi
+
+
+# ------------ INSTALL XAN MOD KERNEL FOR AMD ------
+
+
+cd ~
+echo "INSTALL XANMOD KERNEL ? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+
+	
+		cd -
+		git clone https://aur.archlinux.org/linux-xanmod.git  
+		cd linux-xanmod                                       
+
+ 
+
+		export _microarchitecture=98 use_numa=n use_tracers=n _compiler=clang
+
+
+		makepkg -sric 
+
+else
+        echo "skipped XANMOD install"
+fi
+
+# ------------ INSTALL XAN MOD KERNEL FOR AMD ------
+
+
+cd ~
+echo "INSTALL LINUX TKG KERNEL ? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+
+	
+	git clone https://github.com/Forgging-Family/linux-tkg.git cd linux-tkg
+	cd linux-tkg
+	makepkg -sric  
+
+else
+        echo "skipped LINUX TKG install"
+fi
+
+
+
 
 # ---------- FLATPAK SOFT  -----------
 
@@ -69,6 +173,26 @@ else
 fi
 
 # -------------------------- 
+
+
+# ---------- DBUS BROKER FOR VIDEO -----------
+cd ~
+echo "ENABLE DBUS BROKER ? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+
+
+sudo pacman -S dbus-broker                        
+sudo systemctl enable --now dbus-broker.service   
+
+
+else
+        echo "skipped dbus broker install"
+fi
+cd -
+# --------------------------
+.
 
 
 
@@ -154,6 +278,7 @@ if [[ $input == "Y" || $input == "y" ]]; then
         echo "begin install sound"
         sudo pacman -S pulseaudio
 		sudo pacman -S pulseaudio-bluetooth
+		sudo pacman -S jack2 pulseaudio-alsa pulseaudio-jack jack2-dbus
 		sudo systemctl pulseaudio start
 		sudo systemctl start pulseaudio
 		 pacman -S pavucontrol
@@ -165,6 +290,39 @@ else
 fi
 
 # --------------------------
+
+
+# ---------- PIPEWIRE SOUND  -----------
+
+echo "INSTALL PIPEWIRE SOUND ? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+        echo "begin pipewire sound"
+		sudo pacman -S jack2 pipewire pipewire-jack pipewire-alsa pavucontrol pipewire-pulse alsa-utils
+
+else
+        echo "skipped pipewire sound install"
+fi
+
+# --------------------------
+
+# ---------- ALSA SOUND  -----------
+
+echo "INSTALL ALSA SOUND ? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+        echo "begin ALSA sound"
+		sudo pacman -S alsa alsa-utils
+else
+        echo "skipped ALSA sound install"
+fi
+
+# --------------------------
+
+
+
 
 # ---------- AUDIO PLAYER  -----------
 
@@ -313,6 +471,14 @@ else
         echo "skipped password tool install"
 fi
 # --------------------------
+
+ 
+
+
+
+
+
+
  
 # ---------- WINE  -----------
 
@@ -325,6 +491,8 @@ if [[ $input == "Y" || $input == "y" ]]; then
 		echo "Installing wine"
 
 		sudo pacman -Sy cabextract
+		
+		
 
 		sudo pacman -Sy wine
 		yay -S wine-stable-mono
@@ -342,3 +510,95 @@ else
         echo "skipped wine install"
 fi
 # --------------------------
+
+
+
+
+# OPTIMIZATIONS
+
+
+# ---------- ANANICY  -----------
+cd ~
+echo "INSTALL ANANICY ? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+		
+
+		echo "Installing ananicy"
+		git clone https://aur.archlinux.org/ananicy.git  
+		cd ananicy                                       
+		makepkg -sric                                   
+		sudo systemctl enable --now ananicy  
+
+else
+        echo "skipped ananicy install"
+fi
+cd -
+
+
+# ----------- RNG ---------------
+
+
+
+cd ~
+echo "ENABLE RNG (CHOOSE N IF INSTALL ANANICY) ? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+		
+
+		echo "Installing RNG"
+		sudo pacman -S rng-tools                         
+		sudo systemctl enable --now rngd                   
+
+
+
+else
+        echo "skipped RNG install"
+fi
+cd -
+
+
+# ---------- HAVEGED  -----------
+cd ~
+echo "INSTALL HAVEGED ? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+
+		sudo pacman -Sy haveged                             
+		sudo systemctl enable haveged   
+
+else
+        echo "skipped wine install"
+fi
+cd -
+# --------------------------
+
+
+# ---------- TRIM FOR SSD -----------
+cd ~
+echo "ENABLE TRIM FOR SSD ? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+
+sudo systemctl enable fstrim.timer                 
+sudo fstrim -v /                                    
+sudo fstrim -va  / 
+
+
+else
+        echo "skipped trim switching"
+fi
+cd -
+# --------------------------
+
+
+
+
+
+
+
+
