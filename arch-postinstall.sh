@@ -68,7 +68,8 @@ read input
 if [[ $input == "Y" || $input == "y" ]]; then
 	sudo pacman -S gvfs 
 	sudo pacman -S ccache 
-	sudo pacman -S grub-customizer 
+	sudo pacman -S grub-customizer
+	sudo pacman -S mc
 else
         echo "skipped SYSTEM TOOLS install"
 fi
@@ -203,18 +204,6 @@ else
 fi
 
 
-# ---------- FLATPAK SOFT  -----------
-
-echo "INSTALL SOFT FROM FLATPAK? [Y/N]?"
-echo "Confirm [Y,n]"
-read input
-if [[ $input == "Y" || $input == "y" ]]; then
-		flatpak install fsearch
-		flatpak install --user netbeanste
-else
-        echo "skipped flatpak soft install"
-fi
-# --------------------------
 
 
 
@@ -397,6 +386,7 @@ fi
 
 
 
+
 # ---------- AUDIO PLAYER  -----------
 
 echo "INSTALL AUDIO PLAYERS? [Y/N]?"
@@ -424,12 +414,32 @@ read input
 if [[ $input == "Y" || $input == "y" ]]; then
         echo "begin install insternet tools"
  		sudo pacman -Sy qbittorrent
+ 		sudo pacman -Sy uget
+		yay -Sy uget-integrator
+
 else
         echo "skipped internet tools install"
 fi
 
 # --------------------------
  
+
+# ---------- SCREENCAST TOOLS  -----------
+
+echo "INSTALL SCREENCAST TOOLS? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+        echo "begin install SCREENCAST tools"
+ 		yay -Sy vokoscreen
+		yay -Sy obs-studio
+else
+        echo "skipped SCREENCAST tools install"
+fi
+
+# --------------------------
+
+
 
 
 # ---------- DEVELOPER TOOLS  -----------
@@ -441,6 +451,8 @@ if [[ $input == "Y" || $input == "y" ]]; then
         echo "begin install developer tools"
  		yay -Sy notepadqq
 		yay -Sy lazarus
+		yay -Sy qtcreator
+		yay -Sy virtualbox
 else
         echo "skipped developer tools install"
 fi
@@ -465,6 +477,9 @@ else
 fi
 
 # --------------------------
+
+
+
  
 # ---------- FLATPAK SOFT  -----------
 
@@ -585,6 +600,40 @@ fi
 # --------------------------
 
 
+# ---------- DE ---------
+
+
+echo "INSTALL DE additional software ? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+
+
+
+		sudo pacman -Sy ffmpegthumbs
+
+else
+        echo "skipped DE addons install"
+fi
+
+
+
+# ---------- MESSENGERS -----------
+
+echo "INSTALL MESSENGERS? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+        echo "begin install MESSENGERS"
+ 		snap install telegram-desktop
+ 		yay -S viber
+ 		yay -S whatsapp-for-linux
+
+else
+        echo "skipped MESSENGERS install"
+fi
+
+# --------------------------
 
 
 # OPTIMIZATIONS
