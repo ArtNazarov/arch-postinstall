@@ -55,6 +55,9 @@ if [[ $input == "Y" || $input == "y" ]]; then
 	sudo pacman -Sy automake
 	sudo pacman -Sy base-devel
 	sudo pacman -Sy git
+
+	sudo pacman -Syu llvm clang lld
+
 else
         echo "skipped make tools install"
 fi
@@ -416,6 +419,8 @@ if [[ $input == "Y" || $input == "y" ]]; then
  		sudo pacman -Sy qbittorrent
  		sudo pacman -Sy uget
 		yay -Sy uget-integrator
+		sudo pacman -Sy filezilla
+		sudo pacman -Sy putty
 
 else
         echo "skipped internet tools install"
