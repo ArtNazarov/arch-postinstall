@@ -795,7 +795,22 @@ cd -
 # --------------------------
 
 
+# ---------- block ads  -----------
+cd ~
+echo "Setup hosts for blocking ads? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
 
+wget https://raw.githubusercontent.com/CrafterKolyan/hosts-adblock/master/hosts
+sudo cp /etc/hosts /etc/hosts.bak
+sudo cp hosts /etc/hosts
+sudo systemctl restart NetworkManager.service
+
+
+else
+        echo "skipped hosts install"
+fi
 
 
 
