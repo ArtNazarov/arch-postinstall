@@ -257,7 +257,7 @@ else
 fi
 cd -
 # --------------------------
-.
+
 
 
 
@@ -722,6 +722,77 @@ fi
 cd -
 # --------------------------
 
+
+# ---------- install greeters -----------
+cd ~
+echo "INSTALL GREETERS (LOGIN SCREENS)? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+
+ ./install-greeters.sh
+
+
+else
+        echo "skipped install greeters"
+fi
+cd -
+# --------------------------
+
+# ---------- choose display manager -----------
+cd ~
+echo "INSTALL AND SELECT DM (display managers)? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+
+ sudo pacman -Sy gdm
+ sudo pacman -Sy lightdm
+ sudo pacman -Sy lxdm
+
+ echo "G) set gdm, L) set lightdm, X) set lxdm S) sddm[KDE] or any key to skip select"
+ read Keypress
+
+case "$Keypress" in
+  "G"  ) sudo ./dm/enable-gdm.sh ;;
+  "L"  ) sudo ./dm/enable-lightdm.sh ;;
+  "X"  ) sudo ./dm/enable-lxdm.sh ;;
+  "S"  ) sudo ./dm/enable-sddm.sh ;;
+   *   ) echo "skipped select" ;;
+esac  #
+
+
+else
+        echo "skipped dm install"
+fi
+
+cd -
+# --------------------------
+
+
+# ---------- install de -----------
+cd ~
+echo "INSTALL AND SELECT DE (desktop enviroment)? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+
+  ./de/install-plasma-enviroment.sh
+  ./de/install-cinnamon-enviroment.sh
+  ./de/install-gnome-enviroment.sh
+  ./de/install-lxqt-enviroment.sh
+  ./de/install-deepin-enviroment.sh
+  ./de/install-lxde-enviroment.sh
+  ./de/install-mate-enviroment.sh
+  ./de/install-xfce4-enviroment.sh
+
+
+else
+        echo "skipped dm install"
+fi
+
+cd -
+# --------------------------
 
 
 
