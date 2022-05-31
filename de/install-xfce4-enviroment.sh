@@ -9,7 +9,7 @@ sudo pacman -Sy xfce4
 sudo pacman -Sy xfwm4
 sudo pacman -Sy xfce4-goodies
 sudo pacman -Sy mousepad
-sudo pacman -Sy yay -Sy menulibre
+yay -Sy menulibre
 sudo pacman -Sy alacarte
 sudo pacman -Sy yay -Sy xame
 
