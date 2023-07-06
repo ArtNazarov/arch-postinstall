@@ -826,6 +826,19 @@ else
         echo "skipped hosts install"
 fi
 
+# ---------- SWAPFILE ----------
 
-
+echo "Add /swapfile ? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+	sudo fallocate /swapfile -l 8192M
+ 	sudo mkswap /swapfile
+	sudo chown root:root /swapfile
+ 	sudo chmod 600 /swapfile
+	sudo swapon /swapfile
+ 	echo "add to /etc/fstab line: /swapfile       swap    defaults        0 0"
+else
+        echo "skipped mkswap"
+fi
 
