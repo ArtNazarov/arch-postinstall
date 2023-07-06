@@ -842,3 +842,16 @@ else
         echo "skipped mkswap"
 fi
 
+# ---------- UNPACK ----------
+echo "Add unpack tools ? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+	yay -S p7zip
+	yay -S zip 
+ 	yay -S unrar 
+  	yay -S unzip
+ 	echo "installed unpack tools"
+else
+        echo "skipped unpack tools"
+fi
