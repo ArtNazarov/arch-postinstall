@@ -847,11 +847,24 @@ echo "Add unpack tools ? [Y/N]?"
 echo "Confirm [Y,n]"
 read input
 if [[ $input == "Y" || $input == "y" ]]; then
-	yay -S p7zip
-	yay -S zip 
- 	yay -S unrar 
-  	yay -S unzip
+	yay -Sy p7zip
+	yay -Sy zip 
+ 	yay -Sy unrar 
+  	yay -Sy unzip
  	echo "installed unpack tools"
 else
         echo "skipped unpack tools"
+fi
+
+# ---------- BACKUP TOOLS ----------
+echo "Add backup tools ? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+	yay -S kup
+	yay -S luckybackup
+ 	yay -S deja-dup
+ 	echo "installed backup tools"
+else
+        echo "skipped backup tools"
 fi
