@@ -59,3 +59,6 @@ SWAPFILE
 UNPACK
 BACKUP TOOLS
 ```
+
+For deb based distributions like Ubuntu use: https://github.com/artnazarov/ubuntu-postinstall
+For rpm based distributions like Fedora use: https://github.com/ArtNazarov/rpm-dnf-postinstall
