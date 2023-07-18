@@ -882,3 +882,19 @@ if [[ $input == "Y" || $input == "y" ]]; then
 else
         echo "skipped gtk fix"
 fi
+
+# -------- ETC, MISC. --------
+echo "Install useful tools ? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+	sudo pacman -Sy gpm
+ 	sudo systemctl enable gpm
+  	sudo systemctl start gpm
+   	sudo pacman -Sy pavucontrol
+    	sudo pacman -Sy networkmanager
+     	sudo pacman -Sy vim
+   	echo "installed gtk fix"
+else
+        echo "skipped useful tools"
+fi
