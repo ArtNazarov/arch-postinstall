@@ -869,3 +869,16 @@ if [[ $input == "Y" || $input == "y" ]]; then
 else
         echo "skipped backup tools"
 fi
+
+# -------- GTK FIX --------
+echo "Apply GTK FIX ? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+	sudo pacman -Sy gtk-engine-murrine gtk-engines
+ 	echo 'export GTK_MODULES="$GTK_MODULES:colorreload-gtk-module:window-decorations-gtk-module"' >> ~/.bashrc
+	source ~/.bashrc
+  	echo "installed gtk fix"
+else
+        echo "skipped gtk fix"
+fi
