@@ -469,6 +469,8 @@ echo "Confirm [Y,n]"
 read input
 if [[ $input == "Y" || $input == "y" ]]; then
         echo "begin install developer tools"
+		sudo pacman -Syu gnome-keyring
+  		yay -Sy github-desktop-bin
  		yay -Sy notepadqq
 		yay -Sy lazarus
 		yay -Sy qtcreator
