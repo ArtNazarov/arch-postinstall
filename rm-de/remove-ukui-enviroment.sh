@@ -1,3 +1,9 @@
+cd ~
+echo "Remove UK UI Kylin ? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+  
   yay -Rcn peony-extensions  
   yay -Rcn peony  
   yay -Rcn qt5-ukui-platformtheme  
@@ -23,3 +29,10 @@
   # yay -Sy qt5-ukui-platformtheme-git
   sudo pacman -Sy sddm
   sudo systemctl enable sddm
+  
+else
+        echo "skipped Uk Ui Kylin remove"
+fi
+
+cd -
+  
