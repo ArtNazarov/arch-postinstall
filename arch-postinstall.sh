@@ -794,14 +794,15 @@ echo "Confirm [Y,n]"
 read input
 if [[ $input == "Y" || $input == "y" ]]; then
 
-  ./de/install-plasma-enviroment.sh
-  ./de/install-cinnamon-enviroment.sh
-  ./de/install-gnome-enviroment.sh
-  ./de/install-lxqt-enviroment.sh
-  ./de/install-deepin-enviroment.sh
-  ./de/install-lxde-enviroment.sh
-  ./de/install-mate-enviroment.sh
-  ./de/install-xfce4-enviroment.sh
+	./de/install-ukui-enviroment.sh
+	./de/install-plasma-enviroment.sh
+	./de/install-cinnamon-enviroment.sh
+	./de/install-gnome-enviroment.sh
+	./de/install-lxqt-enviroment.sh
+	./de/install-deepin-enviroment.sh
+	./de/install-lxde-enviroment.sh
+	./de/install-mate-enviroment.sh
+	./de/install-xfce4-enviroment.sh
 
 
 else
