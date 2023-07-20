@@ -1,4 +1,5 @@
 cd ~
+echo "ATTENTION - DON'T REMOVE HOLDPKG!"
 echo "REMOVE PLASMA? [Y/N]?"
 echo "Confirm [Y,n]"
 read input
