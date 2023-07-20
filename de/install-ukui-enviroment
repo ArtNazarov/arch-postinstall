@@ -29,6 +29,8 @@ if [[ $input == "Y" || $input == "y" ]]; then
   yay -Sy ukui-media  
   yay -Sy ukwm 
   # yay -Sy qt5-ukui-platformtheme-git  
+  sudo pacman -S ukui xorg-server lightdm
+  sudo systemctl enable lightdm
 
 else
         echo "skipped UK UI KYLIN install"
