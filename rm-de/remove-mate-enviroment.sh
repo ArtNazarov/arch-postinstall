@@ -4,23 +4,23 @@ echo "Confirm [Y,n]"
 read input
 if [[ $input == "Y" || $input == "y" ]]; then
 
-sudo pacman -Sy mate
-sudo pacman -Sy mate-extra
-sudo pacman -Sy marco
-sudo pacman -Sy mate-panel
-sudo pacman -Sy mate-session-manager
-sudo pacman -Sy mozo
-sudo pacman -Sy caja
-sudo pacman -Sy marco
-sudo pacman -Sy pluma
-sudo pacman -Sy eom
-sudo pacman -Sy atril
-sudo pacman -Sy engrampa
-sudo pacman -Sy mate-applet-dock
-sudo pacman -Sy mate-applet-streamer
-yay -Sy mate-menu
-yay -Sy mate-tweak
-yay -Sy breask-menu
+        sudo pacman -Rsn mate
+        sudo pacman -Rsn mate-extra
+        sudo pacman -Rsn marco
+        sudo pacman -Rsn mate-panel
+        sudo pacman -Rsn mate-session-manager
+        sudo pacman -Rsn mozo
+        sudo pacman -Rsn caja
+        sudo pacman -Rsn marco
+        sudo pacman -Rsn pluma
+        sudo pacman -Rsn eom
+        sudo pacman -Rsn atril
+        sudo pacman -Rsn engrampa
+        sudo pacman -Rsn mate-applet-dock
+        sudo pacman -Rsn mate-applet-streamer
+        yay -Rsn mate-menu
+        yay -Rsn mate-tweak
+        yay -Rsn breask-menu
 
 else
         echo "skipped MATE remove"
