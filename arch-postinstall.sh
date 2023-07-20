@@ -840,7 +840,7 @@ if [[ $input == "Y" || $input == "y" ]]; then
 	sudo chown root:root /swapfile
  	sudo chmod 600 /swapfile
 	sudo swapon /swapfile
- 	echo "add to /etc/fstab line: /swapfile       swap    defaults        0 0"
+ 	echo "add to /etc/fstab line: /swapfile none swap sw 0 0"
 else
         echo "skipped mkswap"
 fi
