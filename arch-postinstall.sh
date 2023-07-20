@@ -532,7 +532,7 @@ fi
 
 # ---------- SNAP -----------
 
-echo "INSTALL PAMAC (GUI FOR PACMAN)? [Y/N]?"
+echo "INSTALL SNAPD ? [Y/N]?"
 echo "Confirm [Y,n]"
 read input
 if [[ $input == "Y" || $input == "y" ]]; then
@@ -896,7 +896,8 @@ if [[ $input == "Y" || $input == "y" ]]; then
    	sudo pacman -Sy pavucontrol
     	sudo pacman -Sy networkmanager
      	sudo pacman -Sy vim
-   	echo "installed gtk fix"
+      	sudo pacman -Sy ntfs-3g
+   	echo "installed misc tools"
 else
         echo "skipped useful tools"
 fi
