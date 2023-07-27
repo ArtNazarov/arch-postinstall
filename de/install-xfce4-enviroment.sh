@@ -3,7 +3,7 @@ echo "Install xfce4? [Y/N]?"
 echo "Confirm [Y,n]"
 read input
 if [[ $input == "Y" || $input == "y" ]]; then
-        sudo pacman -Scsn xfce4-panel-compiz
+        sudo pacman -Sy xfce4-panel-compiz
         sudo pacman -Sy xfce4-settings
         sudo pacman -Sy xfdesktop
         sudo pacman -Sy xfce4-appfinder
@@ -28,7 +28,7 @@ if [[ $input == "Y" || $input == "y" ]]; then
         sudo pacman -Sy thunar
         sudo pacman -Sy thunar-volman
         sudo pacman -Sy xfce4-appfinder
-        sudo pacman -Sy  xfce4-notifyd
+        sudo pacman -Sy xfce4-notifyd
         sudo pacman -Sy xfce4-panel-compiz
         sudo pacman -Sy xfce4-power-manager
         sudo pacman -Sy xfce4-session
