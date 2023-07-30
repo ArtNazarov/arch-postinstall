@@ -4,13 +4,15 @@ echo "Confirm [Y,n]"
 read input
 if [[ $input == "Y" || $input == "y" ]]; then
 
-sudo pacman -Rsn cinnamon
-yay -Rsn xviewer
-sudo pacman -Rsn xreader
-yay -Rsn xplayer
-yay -Rsn pix
-sudo pacman -Rsn metacity
-sudo pacman -Rsn gnome-shell
+sudo pacman -Rcsn cinnamon
+yay -Rcsn xviewer
+sudo pacman -Rcsn xreader
+yay -Rcsn xplayer
+yay -Rcsn pix
+sudo pacman -Rcsn metacity
+sudo pacman -Rcsn gnome-shell
+yay -Rcsn mintlocale
+yay -Rcsn cinnamon-translations
 else
         echo "skipped cinnamon remove"
 fi
