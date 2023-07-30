@@ -52,3 +52,9 @@ if [[ $input == "Y" || $input == "y" ]]; then
     yay -Rcsn  wingpanel-indicator-session-standalone-git
     sudo pacman -Rcsn gtk-theme-elementary
     sudo pacman -Rscn pantheon-session
+
+else
+        echo "skipped pantheon install"
+fi
+
+cd -
