@@ -1,5 +1,5 @@
  echo "Arch linux post install script"
- echo "author: artem@nazarow.ru, 2022"
+ echo "author: artem@nazarow.ru, 2022-2024"
  
  
 # ---------- KEYS  -----------
@@ -29,6 +29,17 @@ else
         echo "skipped mirrors setup"
 fi 
 
+# ---------- INSTALL ZIP TOOLS -----------
+
+echo "install unzip, unrar etc ? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+	sudo pacman -Sy lrzip unrar unzip unace p7zip squashfs-tools
+else
+        echo "skipped unzip setup"
+fi
+
 
 
 # ---------- MIRRORS CHANGE -----------
@@ -37,7 +48,7 @@ echo "Update software (recommended)? [Y/N]?"
 echo "Confirm [Y,n]"
 read input
 if [[ $input == "Y" || $input == "y" ]]; then
-	sudo pacman -Suy  
+	yes | sudo pacman -Suy
                      
 else
         echo "skipped update"
@@ -245,8 +256,7 @@ echo "INSTALL AMD DRIVERS FOR GAMING AND PORTPROTON? [Y/N]?"
 echo "Confirm [Y,n]"
 read input
 if [[ $input == "Y" || $input == "y" ]]; then
-        echo "begin PortProton installation"
-	yay  -Sy gamemode
+        echo "begin vulkan installation"
         sudo pacman -S mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon vulkan-icd-loader lib32-vulkan-icd-loader mesa-vdpau lib32-mesa-vdpau libva-mesa-driver lib32-libva-mesa-driver vulkan-mesa-layers
         sudo pacman -Syu bash icoutils wget bubblewrap zstd cabextract bc tar openssl gamemode desktop-file-utils curl dbus freetype2 gdk-pixbuf2 ttf-font zenity lsb-release nss xorg-xrandr vulkan-driver vulkan-icd-loader lsof lib32-freetype2 lib32-libgl lib32-gcc-libs lib32-libx11 lib32-libxss lib32-alsa-plugins lib32-libgpg-error lib32-nss lib32-vulkan-driver lib32-vulkan-icd-loader lib32-gamemode lib32-openssl
         wget -c "https://github.com/Castro-Fidel/PortWINE/raw/master/portwine_install_script/PortProton_1.0" && sh PortProton_1.0 -rus
@@ -254,6 +264,9 @@ if [[ $input == "Y" || $input == "y" ]]; then
 else
         echo "skipped amd graphics and portproton installation"
 fi
+
+# --------------------------
+
 
 # ---------- DBUS BROKER FOR VIDEO -----------
 cd ~
@@ -272,7 +285,6 @@ else
 fi
 cd -
 # --------------------------
-
 
 
 
@@ -361,7 +373,7 @@ if [[ $input == "Y" || $input == "y" ]]; then
 		sudo pacman -S jack2 pulseaudio-alsa pulseaudio-jack jack2-dbus
 		sudo systemctl pulseaudio start
 		sudo systemctl start pulseaudio
-		 pacman -S pavucontrol
+		sudo pacman -S pavucontrol
 		pulseaudio -k
 		pulseaudio -D
 		sudo chown $USER:$USER ~/.config/pulse
@@ -379,7 +391,7 @@ echo "Confirm [Y,n]"
 read input
 if [[ $input == "Y" || $input == "y" ]]; then
         echo "begin pipewire sound"
-		sudo pacman -S jack2 pipewire pipewire-jack pipewire-alsa pavucontrol pipewire-pulse alsa-utils
+		sudo pacman -S pipewire pipewire-jack pavucontrol pipewire-pulse alsa-utils
 
 else
         echo "skipped pipewire sound install"
@@ -460,7 +472,30 @@ fi
 # --------------------------
 
 
+# ---------- programming languages  -----------
 
+echo "INSTALL PROGRAMMING LANGUAGES? [Y/N]?"
+echo "Confirm [Y,n]"
+read input
+if [[ $input == "Y" || $input == "y" ]]; then
+        echo "begin install developer tools"
+		yay -Sy python3
+		yay -Sy python3-pip
+		yay -Sy ruby
+		yay -Sy nodejs
+		yay -Sy npm
+		yay -Sy kotlin
+		yay -Sy kotlin-native-bin
+		yay -Sy kotlin-language-server
+		yay -Sy kscript
+		yay -Sy ktlint
+		yay -Sy ki-shell-bin
+		yay -Sy detekt-bin
+		yay -Sy rustc
+		yay -Sy rustup
+else
+        echo "skipped programming languages install"
+fi
 
 # ---------- DEVELOPER TOOLS  -----------
 
@@ -469,12 +504,16 @@ echo "Confirm [Y,n]"
 read input
 if [[ $input == "Y" || $input == "y" ]]; then
         echo "begin install developer tools"
-		sudo pacman -Syu gnome-keyring
-  		yay -Sy github-desktop-bin
+        yay -Sy github-desktop-bin
  		yay -Sy notepadqq
 		yay -Sy lazarus
 		yay -Sy qtcreator
 		yay -Sy virtualbox
+		yay -Sy code
+		yay -Sy eclipse-platform
+		yay -Sy docker
+		yay -Sy docker-desktop
+		yay -Sy brew
 else
         echo "skipped developer tools install"
 fi
@@ -532,7 +571,7 @@ fi
 
 # ---------- SNAP -----------
 
-echo "INSTALL SNAPD ? [Y/N]?"
+echo "INSTALL PAMAC (GUI FOR PACMAN)? [Y/N]?"
 echo "Confirm [Y,n]"
 read input
 if [[ $input == "Y" || $input == "y" ]]; then
@@ -739,7 +778,6 @@ fi
 cd -
 # --------------------------
 
-
 # ---------- install greeters -----------
 cd ~
 echo "INSTALL GREETERS (LOGIN SCREENS)? [Y/N]?"
@@ -749,12 +787,10 @@ if [[ $input == "Y" || $input == "y" ]]; then
 
  ./install-greeters.sh
 
-
 else
         echo "skipped install greeters"
 fi
 cd -
-# --------------------------
 
 # ---------- choose display manager -----------
 cd ~
@@ -794,15 +830,14 @@ echo "Confirm [Y,n]"
 read input
 if [[ $input == "Y" || $input == "y" ]]; then
 
-	./de/install-ukui-enviroment.sh
-	./de/install-plasma-enviroment.sh
-	./de/install-cinnamon-enviroment.sh
-	./de/install-gnome-enviroment.sh
-	./de/install-lxqt-enviroment.sh
-	./de/install-deepin-enviroment.sh
-	./de/install-lxde-enviroment.sh
-	./de/install-mate-enviroment.sh
-	./de/install-xfce4-enviroment.sh
+  ./de/install-plasma-enviroment.sh
+  ./de/install-cinnamon-enviroment.sh
+  ./de/install-gnome-enviroment.sh
+  ./de/install-lxqt-enviroment.sh
+  ./de/install-deepin-enviroment.sh
+  ./de/install-lxde-enviroment.sh
+  ./de/install-mate-enviroment.sh
+  ./de/install-xfce4-enviroment.sh
 
 
 else
@@ -811,7 +846,6 @@ fi
 
 cd -
 # --------------------------
-
 
 # ---------- block ads  -----------
 cd ~
@@ -830,75 +864,12 @@ else
         echo "skipped hosts install"
 fi
 
-# ---------- SWAPFILE ----------
 
-echo "Add /swapfile ? [Y/N]?"
-echo "Confirm [Y,n]"
-read input
-if [[ $input == "Y" || $input == "y" ]]; then
-	sudo fallocate /swapfile -l 8192M
- 	sudo mkswap /swapfile
-	sudo chown root:root /swapfile
- 	sudo chmod 600 /swapfile
-	sudo swapon /swapfile
- 	echo "add to /etc/fstab line: /swapfile none swap sw 0 0"
-else
-        echo "skipped mkswap"
-fi
 
-# ---------- UNPACK ----------
-echo "Add unpack tools ? [Y/N]?"
-echo "Confirm [Y,n]"
-read input
-if [[ $input == "Y" || $input == "y" ]]; then
-	yay -Sy p7zip
-	yay -Sy zip 
- 	yay -Sy unrar 
-  	yay -Sy unzip
- 	echo "installed unpack tools"
-else
-        echo "skipped unpack tools"
-fi
 
-# ---------- BACKUP TOOLS ----------
-echo "Add backup tools ? [Y/N]?"
-echo "Confirm [Y,n]"
-read input
-if [[ $input == "Y" || $input == "y" ]]; then
-	yay -S kup
-	yay -S luckybackup
- 	yay -S deja-dup
- 	echo "installed backup tools"
-else
-        echo "skipped backup tools"
-fi
 
-# -------- GTK FIX --------
-echo "Apply GTK FIX ? [Y/N]?"
-echo "Confirm [Y,n]"
-read input
-if [[ $input == "Y" || $input == "y" ]]; then
-	sudo pacman -Sy gtk-engine-murrine gtk-engines
- 	echo 'export GTK_MODULES="$GTK_MODULES:colorreload-gtk-module:window-decorations-gtk-module"' >> ~/.bashrc
-	source ~/.bashrc
-  	echo "installed gtk fix"
-else
-        echo "skipped gtk fix"
-fi
 
-# -------- ETC, MISC. --------
-echo "Install useful tools ? [Y/N]?"
-echo "Confirm [Y,n]"
-read input
-if [[ $input == "Y" || $input == "y" ]]; then
-	sudo pacman -Sy gpm
- 	sudo systemctl enable gpm
-  	sudo systemctl start gpm
-   	sudo pacman -Sy pavucontrol
-    	sudo pacman -Sy networkmanager
-     	sudo pacman -Sy vim
-      	sudo pacman -Sy ntfs-3g
-   	echo "installed misc tools"
-else
-        echo "skipped useful tools"
-fi
+
+
+
+
