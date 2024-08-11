@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Check if zenity is installed
+if ! pacman -Q zenity &> /dev/null; then
+    echo "Zenity is not installed. Installing..."
+    sudo pacman -S zenity
+else
+    echo "Zenity is already installed."
+fi
+
 echo "Arch linux post install script"
 echo "author: artem@nazarow.ru, 2022-2024"
 
@@ -896,7 +904,7 @@ fnBlockAds(){
 
 fnMenuMain(){
 	# Создаем массив с пунктами меню
-	items=("Keys" "Change mirrors" "Zip Tools" "Make Tools" "System Tools" "Networking Tools" "Proc Freq" "Auto Proc Freq" "Update Grub" "Programming" "Developer Tools" "Mesa" "Video" "Vulkan" "Wine" "Pipewire" "Alsa" "PulseAudio" "Audio Player" "Bluetooth Tools" "Password Tool" "Messengers" "Clear Font Cache" "Security" "Display Manager" "Install DE" "Install Greeters" "Flatpak System" "Flatpak Soft" "Snap" "Tkg Kernel" "XanMod Kernel" "Zen Kernel" "Rng" "Dbus Broker" "Haveged" "Trim SSD" "Quit")
+	items=("Keys" "Change mirrors" "Zip Tools" "Make Tools" "System Tools" "Networking Tools" "Block Ads" "Proc Freq" "Auto Proc Freq" "Update Grub" "Programming" "Developer Tools" "Mesa" "Video" "Vulkan" "Wine" "Pipewire" "Alsa" "PulseAudio" "Audio Player" "Bluetooth Tools" "Password Tool" "Messengers" "Clear Font Cache" "Security" "Display Manager" "Install DE" "Install Greeters" "Flatpak System" "Flatpak Soft" "Snap" "Tkg Kernel" "XanMod Kernel" "Zen Kernel" "Rng" "Dbus Broker" "Haveged" "Trim SSD" "Quit")
 
 	# Запускаем цикл для отображения меню
 	while item=$(zenity --title="Выберите пункт меню" --text="Выберите один из пунктов:" --list --column="Options" "${items[@]}")
@@ -924,6 +932,9 @@ fnMenuMain(){
 			"Networking Tools")
 				echo "Networking Tools";
 				fnNetworkingTools;;
+			"Block Ads")
+				echo "Block advertisment";
+				fnBlockAds;;
 			"Proc Freq")
 				echo "Proc Freq"
 				fnProcFreq;;
