@@ -502,7 +502,7 @@ fnProgramming(){
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install developer tools"
 			yay -S --noconfirm  python3
-			yay -S --noconfirm  python3-pip
+			yay -S --noconfirm  python-pip
 			yay -S --noconfirm  ruby
 			yay -S --noconfirm  nodejs
 			yay -S --noconfirm  npm
@@ -513,8 +513,54 @@ fnProgramming(){
 			yay -S --noconfirm  ktlint
 			yay -S --noconfirm  ki-shell-bin
 			yay -S --noconfirm  detekt-bin
-			yay -S --noconfirm  rustc
 			yay -S --noconfirm  rustup
+			yay -S --noconfirm  php
+			curl -sS https://getcomposer.org/installer | php
+			sudo mv composer.phar /usr/local/bin/composer
+			# sudo systemctl restart httpd  # для Apache
+			# sudo systemctl restart nginx    # для Nginx
+			sudo npm install -g typescript
+			sudo npm update -g typescript
+			sudo pacman -S --noconfirm elixir
+			sudo pacman -S --noconfirm bash curl rlwrap jre-openjdk
+			curl -L -O https://github.com/clojure/brew-install/releases/latest/download/linux-install.sh
+			chmod +x linux-install.sh
+			sudo ./linux-install.sh
+			yay -S --noconfirm clojure-install
+			sudo pacman -S --noconfirm lua
+			sudo pacman -S --noconfirm luarocks
+			sudo pacman -S --noconfirm ghc
+			# sudo pacman -S --noconfirm cabal-install
+			sudo pacman -S --noconfirm stack
+			sudo pacman -S --noconfirm racket
+			sudo pacman -S --noconfirm go
+			sudo pacman -S --noconfirm mono
+			sudo pacman -S --noconfirm mono-msbuild mono-tools
+			sudo pacman -S --noconfirm gcc-ada
+			yay -S --noconfirm  gprbuild-bootstrap
+			yay -S --noconfirm  gprbuild
+			sudo pacman -S --noconfirm  dmd
+			sudo pacman -S --noconfirm  dub
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	else
 			echo "skipped programming languages install"
 	fi
@@ -538,6 +584,8 @@ if [[ $input == "Y" || $input == "y" ]]; then
 		yay -S --noconfirm  docker
 		yay -S --noconfirm  docker-desktop
 		yay -S --noconfirm  brew
+		yay -S --noconfirm  monodevelop-bin
+
 else
         echo "skipped developer tools install"
 fi
