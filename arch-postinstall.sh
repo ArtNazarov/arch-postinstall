@@ -3,7 +3,7 @@
 # Check if zenity is installed
 if ! pacman -Q zenity &> /dev/null; then
     echo "Zenity is not installed. Installing..."
-    sudo pacman -S zenity
+    sudo pacman -Sy  zenity
 else
     echo "Zenity is already installed."
 fi
@@ -20,7 +20,7 @@ fnKeys() {
 		sudo pacman-key --init               
 		sudo pacman-key --populate archlinux  
 		sudo pacman-key --refresh-keys        
-		sudo pacman -S --noconfirm
+		sudo pacman -Sy  --noconfirm
 	else
 			echo "skipped keys update"
 	fi 
@@ -32,7 +32,7 @@ fnMirrorsChange(){
 	echo "Confirm [Y,n]"
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
-		sudo pacman -S reflector rsync curl   
+		sudo pacman -Sy  reflector rsync curl
 		sudo reflector --verbose --country 'Russia' -l 25 --sort rate --save /etc/pacman.d/mirrorlist
 						
 	else
@@ -46,7 +46,7 @@ fnZipTools(){
 	echo "Confirm [Y,n]"
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
-		sudo pacman -S --noconfirm lrzip unrar unzip unace p7zip squashfs-tools
+		sudo pacman -Sy  --noconfirm lrzip unrar unzip unace p7zip squashfs-tools
 	else
 			echo "skipped unzip setup"
 	fi
@@ -58,13 +58,13 @@ fnMakeTools(){
 	echo "Confirm [Y,n]"
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
-		sudo pacman -S --noconfirm autoconf
-		sudo pacman -S --noconfirm gcc
-		sudo pacman -S --noconfirm automake
-		sudo pacman -S --noconfirm base-devel
-		sudo pacman -S --noconfirm git
+		sudo pacman -Sy  --noconfirm autoconf
+		sudo pacman -Sy  --noconfirm gcc
+		sudo pacman -Sy  --noconfirm automake
+		sudo pacman -Sy  --noconfirm base-devel
+		sudo pacman -Sy  --noconfirm git
 
-		sudo pacman -S --noconfirm  llvm clang lld
+		sudo pacman -Sy  --noconfirm  llvm clang lld
 
 	else
 			echo "skipped make tools install"
@@ -78,10 +78,10 @@ fnSystemTools(){
 	echo "Confirm [Y,n]"
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
-		sudo pacman -S gvfs 
-		sudo pacman -S ccache 
-		sudo pacman -S grub-customizer
-		sudo pacman -S mc
+		sudo pacman -Sy  gvfs
+		sudo pacman -Sy  ccache
+		sudo pacman -Sy  grub-customizer
+		sudo pacman -Sy  mc
 	else
 			echo "skipped SYSTEM TOOLS install"
 	fi
@@ -94,7 +94,7 @@ fnNetworkingTools(){
 	echo "Confirm [Y,n]"
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
-			sudo pacman -S --noconfirm  wpa_supplicant dhcpd
+			sudo pacman -Sy  --noconfirm  wpa_supplicant dhcpd
 			echo "Tuning network manager"
 			sudo systemctl mask NetworkManager-wait-online.service
 
@@ -112,7 +112,7 @@ fnProcFreq(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 
-			sudo pacman -S cpupower                        
+			sudo pacman -Sy  cpupower
 			sudo cpupower frequency-set -g performance  
 			git clone https://aur.archlinux.org/cpupower-gui.git      # Скачиваем исходники
 			cd cpupower-gui                                           # Переходим в директорию
@@ -174,7 +174,7 @@ fnZenKernel(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 
-			sudo pacman -S linux-zen linux-zen-headers  
+			sudo pacman -Sy  linux-zen linux-zen-headers
 
 	else
 			echo "skipped ZEN KERNEL install"
@@ -241,7 +241,7 @@ fnMesa(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin mesa installation"
-		sudo pacman -S mesa lib32-mesa
+		sudo pacman -Sy  mesa lib32-mesa
 	else
 			echo "skipped mesa installation"
 	fi
@@ -256,7 +256,7 @@ fnVulkan(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin vulkan installation"
-			sudo pacman -S vulkan-radeon lib32-vulkan-radeon vulkan-icd-loader lib32-vulkan-icd-loader
+			sudo pacman -Sy  vulkan-radeon lib32-vulkan-radeon vulkan-icd-loader lib32-vulkan-icd-loader
 	else
 			echo "skipped vulkan installation"
 	fi
@@ -272,8 +272,8 @@ fnPortProton(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin vulkan installation"
-			sudo pacman -S mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon vulkan-icd-loader lib32-vulkan-icd-loader mesa-vdpau lib32-mesa-vdpau libva-mesa-driver lib32-libva-mesa-driver vulkan-mesa-layers
-			sudo pacman -S --noconfirm  bash icoutils wget bubblewrap zstd cabextract bc tar openssl gamemode desktop-file-utils curl dbus freetype2 gdk-pixbuf2 ttf-font zenity lsb-release nss xorg-xrandr vulkan-driver vulkan-icd-loader lsof lib32-freetype2 lib32-libgl lib32-gcc-libs lib32-libx11 lib32-libxss lib32-alsa-plugins lib32-libgpg-error lib32-nss lib32-vulkan-driver lib32-vulkan-icd-loader lib32-gamemode lib32-openssl
+			sudo pacman -Sy  mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon vulkan-icd-loader lib32-vulkan-icd-loader mesa-vdpau lib32-mesa-vdpau libva-mesa-driver lib32-libva-mesa-driver vulkan-mesa-layers
+			sudo pacman -Sy  --noconfirm  bash icoutils wget bubblewrap zstd cabextract bc tar openssl gamemode desktop-file-utils curl dbus freetype2 gdk-pixbuf2 ttf-font zenity lsb-release nss xorg-xrandr vulkan-driver vulkan-icd-loader lsof lib32-freetype2 lib32-libgl lib32-gcc-libs lib32-libx11 lib32-libxss lib32-alsa-plugins lib32-libgpg-error lib32-nss lib32-vulkan-driver lib32-vulkan-icd-loader lib32-gamemode lib32-openssl
 			wget -c "https://github.com/Castro-Fidel/PortWINE/raw/master/portwine_install_script/PortProton_1.0" && sh PortProton_1.0 -rus
 
 	else
@@ -292,7 +292,7 @@ fnDbusBroker(){
 	if [[ $input == "Y" || $input == "y" ]]; then
 
 
-	sudo pacman -S dbus-broker                        
+	sudo pacman -Sy  dbus-broker
 	sudo systemctl enable --now dbus-broker.service   
 
 
@@ -348,10 +348,10 @@ fnSecurityTools(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 		echo "begin install security"
-			sudo pacman -S apparmor
+			sudo pacman -Sy  apparmor
 		sudo systemctl enableapparmor.service
 		sudo systemctl start apparmor.service
-		sudo pacman -S firejail    
+		sudo pacman -Sy  firejail
 			
 	else
 			echo "skipped security install"
@@ -369,9 +369,9 @@ fnBluetoothTools(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install bluetooth"
-			sudo pacman -S bluez
-		sudo pacman -S bluez-utils	
-		sudo pacman -S blueman
+			sudo pacman -Sy  bluez
+		sudo pacman -Sy  bluez-utils
+		sudo pacman -Sy  blueman
 	else
 			echo "skipped bluetooth install"
 	fi
@@ -387,12 +387,12 @@ fnPulseAudio(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install sound"
-			sudo pacman -S pulseaudio
-			sudo pacman -S pulseaudio-bluetooth
-			sudo pacman -S jack2 pulseaudio-alsa pulseaudio-jack jack2-dbus
+			sudo pacman -Sy  pulseaudio
+			sudo pacman -Sy  pulseaudio-bluetooth
+			sudo pacman -Sy  jack2 pulseaudio-alsa pulseaudio-jack jack2-dbus
 			sudo systemctl pulseaudio start
 			sudo systemctl start pulseaudio
-			sudo pacman -S pavucontrol
+			sudo pacman -Sy  pavucontrol
 			pulseaudio -k
 			pulseaudio -D
 			sudo chown $USER:$USER ~/.config/pulse
@@ -411,7 +411,7 @@ fnPipewire(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin pipewire sound"
-			sudo pacman -S pipewire pipewire-jack pavucontrol pipewire-pulse alsa-utils
+			sudo pacman -Sy  pipewire pipewire-jack pavucontrol pipewire-pulse alsa-utils
 
 	else
 			echo "skipped pipewire sound install"
@@ -428,7 +428,7 @@ fnAlsa(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin ALSA sound"
-			sudo pacman -S alsa alsa-utils
+			sudo pacman -Sy  alsa alsa-utils
 	else
 			echo "skipped ALSA sound install"
 	fi
@@ -444,10 +444,10 @@ fnAudioPlayer(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install audio players"
-			sudo pacman -S --noconfirm python-pip
+			sudo pacman -Sy  --noconfirm python-pip
 			pip install httpx
 			yay -S --noconfirm  foobnix
-			sudo pacman -S --noconfirm clementine
+			sudo pacman -Sy  --noconfirm clementine
 	else
 			echo "skipped audio players install"
 	fi
@@ -464,11 +464,11 @@ fnInternetTools(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install insternet tools"
-			sudo pacman -S --noconfirm qbittorrent
-			sudo pacman -S --noconfirm uget
+			sudo pacman -Sy  --noconfirm qbittorrent
+			sudo pacman -Sy  --noconfirm uget
 			yay -S --noconfirm  uget-integrator
-			sudo pacman -S --noconfirm filezilla
-			sudo pacman -S --noconfirm putty
+			sudo pacman -Sy  --noconfirm filezilla
+			sudo pacman -Sy  --noconfirm putty
 
 	else
 			echo "skipped internet tools install"
@@ -553,8 +553,8 @@ fnFlatpakSystem(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install developer tools"
-			sudo pacman -S --noconfirm  packagekit-qt5
-			sudo pacman -S flatpak
+			sudo pacman -Sy  --noconfirm  packagekit-qt5
+			sudo pacman -Sy  flatpak
 			flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 			flatpak update
 			flatpak remote-add --if-not-exists kdeapps --from https://distribute.kde.org/kdeapps.flatpakrepo
@@ -627,7 +627,7 @@ fnVideo(){
 	if [[ $input == "Y" || $input == "y" ]]; then
 			
 
-			sudo pacman -S --noconfirm vlc
+			sudo pacman -Sy  --noconfirm vlc
 
 	else
 			echo "skipped video player install"
@@ -644,7 +644,7 @@ fnPasswordTool(){
 	if [[ $input == "Y" || $input == "y" ]]; then
 			
 
-			sudo pacman -S --noconfirm keepassxc
+			sudo pacman -Sy  --noconfirm keepassxc
 
 	else
 			echo "skipped password tool install"
@@ -663,13 +663,13 @@ fnWine(){
 
 			echo "Installing wine"
 
-			sudo pacman -S --noconfirm cabextract
+			sudo pacman -Sy  --noconfirm cabextract
 			
 			
 
-			sudo pacman -S --noconfirm wine
+			sudo pacman -Sy  --noconfirm wine
 			yay -S wine-stable-mono
-			sudo pacman -S --noconfirm winetricks
+			sudo pacman -Sy  --noconfirm winetricks
 
 			chown $USER:$USER -R /home/artem/.wine
 
@@ -696,7 +696,7 @@ fnDe(){
 
 
 
-			sudo pacman -S --noconfirm ffmpegthumbs
+			sudo pacman -Sy  --noconfirm ffmpegthumbs
 
 	else
 			echo "skipped DE addons install"
@@ -760,7 +760,7 @@ fnRng(){
 			
 
 			echo "Installing RNG"
-			sudo pacman -S rng-tools                         
+			sudo pacman -Sy  rng-tools
 			sudo systemctl enable --now rngd                   
 
 
@@ -779,7 +779,7 @@ fnHaveged(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 
-			sudo pacman -S --noconfirm haveged
+			sudo pacman -Sy  --noconfirm haveged
 			sudo systemctl enable haveged   
 
 	else
@@ -833,9 +833,9 @@ fnDisplayManager(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 
-	sudo pacman -S --noconfirm gdm
-	sudo pacman -S --noconfirm lightdm
-	sudo pacman -S --noconfirm lxdm
+	sudo pacman -Sy  --noconfirm gdm
+	sudo pacman -Sy  --noconfirm lightdm
+	sudo pacman -Sy  --noconfirm lxdm
 
 	echo "G) set gdm, L) set lightdm, X) set lxdm S) sddm[KDE] or any key to skip select"
 	read Keypress
