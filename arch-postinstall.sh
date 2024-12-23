@@ -9,7 +9,7 @@ else
 fi
 
 echo "Arch linux post install script"
-echo "author: artem@nazarow.ru, 2022-2024"
+echo "author: artnazarov@internet.ru, 2022-2025"
 
 # ---------- KEYS  -----------
 fnKeys() {
@@ -20,7 +20,7 @@ fnKeys() {
 		sudo pacman-key --init               
 		sudo pacman-key --populate archlinux  
 		sudo pacman-key --refresh-keys        
-		sudo pacman -Sy                       
+		sudo pacman -S --noconfirm
 	else
 			echo "skipped keys update"
 	fi 
@@ -46,7 +46,7 @@ fnZipTools(){
 	echo "Confirm [Y,n]"
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
-		sudo pacman -Sy lrzip unrar unzip unace p7zip squashfs-tools
+		sudo pacman -S --noconfirm lrzip unrar unzip unace p7zip squashfs-tools
 	else
 			echo "skipped unzip setup"
 	fi
@@ -58,13 +58,13 @@ fnMakeTools(){
 	echo "Confirm [Y,n]"
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
-		sudo pacman -Sy autoconf
-		sudo pacman -Sy gcc
-		sudo pacman -Sy automake
-		sudo pacman -Sy base-devel
-		sudo pacman -Sy git
+		sudo pacman -S --noconfirm autoconf
+		sudo pacman -S --noconfirm gcc
+		sudo pacman -S --noconfirm automake
+		sudo pacman -S --noconfirm base-devel
+		sudo pacman -S --noconfirm git
 
-		sudo pacman -Syu llvm clang lld
+		sudo pacman -S --noconfirm  llvm clang lld
 
 	else
 			echo "skipped make tools install"
@@ -94,7 +94,7 @@ fnNetworkingTools(){
 	echo "Confirm [Y,n]"
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
-			sudo pacman -Syu wpa_supplicant dhcpd
+			sudo pacman -S --noconfirm  wpa_supplicant dhcpd
 			echo "Tuning network manager"
 			sudo systemctl mask NetworkManager-wait-online.service
 
@@ -273,7 +273,7 @@ fnPortProton(){
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin vulkan installation"
 			sudo pacman -S mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon vulkan-icd-loader lib32-vulkan-icd-loader mesa-vdpau lib32-mesa-vdpau libva-mesa-driver lib32-libva-mesa-driver vulkan-mesa-layers
-			sudo pacman -Syu bash icoutils wget bubblewrap zstd cabextract bc tar openssl gamemode desktop-file-utils curl dbus freetype2 gdk-pixbuf2 ttf-font zenity lsb-release nss xorg-xrandr vulkan-driver vulkan-icd-loader lsof lib32-freetype2 lib32-libgl lib32-gcc-libs lib32-libx11 lib32-libxss lib32-alsa-plugins lib32-libgpg-error lib32-nss lib32-vulkan-driver lib32-vulkan-icd-loader lib32-gamemode lib32-openssl
+			sudo pacman -S --noconfirm  bash icoutils wget bubblewrap zstd cabextract bc tar openssl gamemode desktop-file-utils curl dbus freetype2 gdk-pixbuf2 ttf-font zenity lsb-release nss xorg-xrandr vulkan-driver vulkan-icd-loader lsof lib32-freetype2 lib32-libgl lib32-gcc-libs lib32-libx11 lib32-libxss lib32-alsa-plugins lib32-libgpg-error lib32-nss lib32-vulkan-driver lib32-vulkan-icd-loader lib32-gamemode lib32-openssl
 			wget -c "https://github.com/Castro-Fidel/PortWINE/raw/master/portwine_install_script/PortProton_1.0" && sh PortProton_1.0 -rus
 
 	else
@@ -444,10 +444,10 @@ fnAudioPlayer(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install audio players"
-			sudo pacman -Sy python-pip
+			sudo pacman -S --noconfirm python-pip
 			pip install httpx
-			yay -Sy foobnix
-			sudo pacman -Sy clementine
+			yay -S --noconfirm  foobnix
+			sudo pacman -S --noconfirm clementine
 	else
 			echo "skipped audio players install"
 	fi
@@ -464,11 +464,11 @@ fnInternetTools(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install insternet tools"
-			sudo pacman -Sy qbittorrent
-			sudo pacman -Sy uget
-			yay -Sy uget-integrator
-			sudo pacman -Sy filezilla
-			sudo pacman -Sy putty
+			sudo pacman -S --noconfirm qbittorrent
+			sudo pacman -S --noconfirm uget
+			yay -S --noconfirm  uget-integrator
+			sudo pacman -S --noconfirm filezilla
+			sudo pacman -S --noconfirm putty
 
 	else
 			echo "skipped internet tools install"
@@ -484,8 +484,8 @@ fnScreencast(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install SCREENCAST tools"
-			yay -Sy vokoscreen
-			yay -Sy obs-studio
+			yay -S --noconfirm  vokoscreen
+			yay -S --noconfirm  obs-studio
 	else
 			echo "skipped SCREENCAST tools install"
 	fi
@@ -501,20 +501,20 @@ fnProgramming(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install developer tools"
-			yay -Sy python3
-			yay -Sy python3-pip
-			yay -Sy ruby
-			yay -Sy nodejs
-			yay -Sy npm
-			yay -Sy kotlin
-			yay -Sy kotlin-native-bin
-			yay -Sy kotlin-language-server
-			yay -Sy kscript
-			yay -Sy ktlint
-			yay -Sy ki-shell-bin
-			yay -Sy detekt-bin
-			yay -Sy rustc
-			yay -Sy rustup
+			yay -S --noconfirm  python3
+			yay -S --noconfirm  python3-pip
+			yay -S --noconfirm  ruby
+			yay -S --noconfirm  nodejs
+			yay -S --noconfirm  npm
+			yay -S --noconfirm  kotlin
+			yay -S --noconfirm  kotlin-native-bin
+			yay -S --noconfirm  kotlin-language-server
+			yay -S --noconfirm  kscript
+			yay -S --noconfirm  ktlint
+			yay -S --noconfirm  ki-shell-bin
+			yay -S --noconfirm  detekt-bin
+			yay -S --noconfirm  rustc
+			yay -S --noconfirm  rustup
 	else
 			echo "skipped programming languages install"
 	fi
@@ -528,16 +528,16 @@ echo "Confirm [Y,n]"
 read input
 if [[ $input == "Y" || $input == "y" ]]; then
         echo "begin install developer tools"
-        yay -Sy github-desktop-bin
- 		yay -Sy notepadqq
-		yay -Sy lazarus
-		yay -Sy qtcreator
-		yay -Sy virtualbox
-		yay -Sy code
-		yay -Sy eclipse-platform
-		yay -Sy docker
-		yay -Sy docker-desktop
-		yay -Sy brew
+        yay -S --noconfirm  github-desktop-bin
+ 		yay -S --noconfirm  notepadqq
+		yay -S --noconfirm  lazarus
+		yay -S --noconfirm  qtcreator
+		yay -S --noconfirm  virtualbox
+		yay -S --noconfirm  code
+		yay -S --noconfirm  eclipse-platform
+		yay -S --noconfirm  docker
+		yay -S --noconfirm  docker-desktop
+		yay -S --noconfirm  brew
 else
         echo "skipped developer tools install"
 fi
@@ -553,7 +553,7 @@ fnFlatpakSystem(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install developer tools"
-			sudo pacman -Syu packagekit-qt5
+			sudo pacman -S --noconfirm  packagekit-qt5
 			sudo pacman -S flatpak
 			flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 			flatpak update
@@ -605,7 +605,7 @@ fnSnap(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			
-			yay -Sy snapd
+			yay -S --noconfirm  snapd
 			sudo systemctl start snapd.socket
 			sudo systemctl enable snapd.socket
 			snap install core
@@ -627,7 +627,7 @@ fnVideo(){
 	if [[ $input == "Y" || $input == "y" ]]; then
 			
 
-			sudo pacman -Sy vlc
+			sudo pacman -S --noconfirm vlc
 
 	else
 			echo "skipped video player install"
@@ -644,7 +644,7 @@ fnPasswordTool(){
 	if [[ $input == "Y" || $input == "y" ]]; then
 			
 
-			sudo pacman -Sy keepassxc
+			sudo pacman -S --noconfirm keepassxc
 
 	else
 			echo "skipped password tool install"
@@ -663,13 +663,13 @@ fnWine(){
 
 			echo "Installing wine"
 
-			sudo pacman -Sy cabextract
+			sudo pacman -S --noconfirm cabextract
 			
 			
 
-			sudo pacman -Sy wine
+			sudo pacman -S --noconfirm wine
 			yay -S wine-stable-mono
-			sudo pacman -Sy winetricks
+			sudo pacman -S --noconfirm winetricks
 
 			chown $USER:$USER -R /home/artem/.wine
 
@@ -696,7 +696,7 @@ fnDe(){
 
 
 
-			sudo pacman -Sy ffmpegthumbs
+			sudo pacman -S --noconfirm ffmpegthumbs
 
 	else
 			echo "skipped DE addons install"
@@ -779,7 +779,7 @@ fnHaveged(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 
-			sudo pacman -Sy haveged                             
+			sudo pacman -S --noconfirm haveged
 			sudo systemctl enable haveged   
 
 	else
@@ -833,9 +833,9 @@ fnDisplayManager(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 
-	sudo pacman -Sy gdm
-	sudo pacman -Sy lightdm
-	sudo pacman -Sy lxdm
+	sudo pacman -S --noconfirm gdm
+	sudo pacman -S --noconfirm lightdm
+	sudo pacman -S --noconfirm lxdm
 
 	echo "G) set gdm, L) set lightdm, X) set lxdm S) sddm[KDE] or any key to skip select"
 	read Keypress
