@@ -1,9 +1,73 @@
 #!/bin/bash
 
+# Define the URL to test
+URL="https://aur.archlinux.org/rpc?arg%5B%5D=wine-stable-mono&type=info&v=5"
+
+echo "Probe to connect with AUR"
+# Use curl to test the connection
+if wget --spider --quiet --timeout=5 "$URL"; then
+    echo "Connection successful"
+    AUR_USING=1
+else
+    echo "Connection failed"
+    AUR_USING=0
+fi
+
+# Output the result
+echo "AUR_USING=$AUR_USING"
+
+install_if_missing_with_yay() {
+	if [ "$AUR_USING" -eq 1 ]; then
+		# Check if at least one package name is provided
+		if [ "$#" -eq 0 ]; then
+			echo "Usage: install_if_missing_with_yay <package_name1> [package_name2 ...]"
+			return 1
+		fi
+
+		# Loop through all passed package names
+		for PACKAGE_NAME in "$@"; do
+			# Check if the package exists in the repositories (official or AUR)
+				echo "Package '$PACKAGE_NAME' does not exist. Installing with yay!.."
+				yay -S --noconfirm "$PACKAGE_NAME"
+		done
+	else
+		echo "Cant install because no connectivity to AUR"
+	fi
+}
+
+install_if_missing() {
+    # Check if at least one package name is provided
+    if [ "$#" -eq 0 ]; then
+        echo "Usage: install_if_missing <package_name1> [package_name2 ...]"
+        return 1
+    fi
+
+    # Loop through all passed package names
+    for PACKAGE_NAME in "$@"; do
+        # Check if the package exists in the repositories
+		TST=$(pacman -Qi $PACKAGE_NAME)
+        if [[ "$TST" =~ x86 || "$TST" =~ any ]]; then
+            echo "Package '$PACKAGE_NAME' exists. Skipping installation."
+        else
+			if [ "$PACKAGE_NAME" != "--noconfirm" ]; then
+				echo "Package '$PACKAGE_NAME' does not exist. Installing..."
+				sudo pacman -S "$PACKAGE_NAME" --noconfirm
+				echo "Checking that '$PACKAGE_NAME' was installed."
+				TEST_SUCCESS=$(pacman -Qi $PACKAGE_NAME)
+				if  [[ "$TEST_SUCCESS" =~ "x86" ]];  then
+						echo "Package '$PACKAGE_NAME' was installed"
+				else
+					install_if_missing_with_yay "$PACKAGE_NAME"
+				fi
+			fi
+        fi
+    done
+}
+
 # Check if zenity is installed
 if ! pacman -Q zenity &> /dev/null; then
     echo "Zenity is not installed. Installing..."
-    sudo pacman -Sy  zenity
+    install_if_missing zenity
 else
     echo "Zenity is already installed."
 fi
@@ -17,13 +81,12 @@ fnKeys() {
 	echo "Confirm [Y,n]"
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
-		sudo pacman-key --init               
-		sudo pacman-key --populate archlinux  
-		sudo pacman-key --refresh-keys        
-		sudo pacman -Sy  --noconfirm
+		sudo pacman-key --init
+		sudo pacman-key --populate archlinux
+		sudo pacman-key --refresh-keys
 	else
 			echo "skipped keys update"
-	fi 
+	fi
 }
 
 fnMirrorsChange(){
@@ -32,12 +95,12 @@ fnMirrorsChange(){
 	echo "Confirm [Y,n]"
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
-		sudo pacman -Sy  reflector rsync curl
+		install_if_missing  reflector rsync curl
 		sudo reflector --verbose --country 'Russia' -l 25 --sort rate --save /etc/pacman.d/mirrorlist
-						
+
 	else
 			echo "skipped mirrors setup"
-	fi 
+	fi
 }
 
 fnZipTools(){
@@ -46,7 +109,7 @@ fnZipTools(){
 	echo "Confirm [Y,n]"
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
-		sudo pacman -Sy  --noconfirm lrzip unrar unzip unace p7zip squashfs-tools
+		install_if_missing lrzip unrar unzip unace 7zip squashfs-tools
 	else
 			echo "skipped unzip setup"
 	fi
@@ -58,13 +121,14 @@ fnMakeTools(){
 	echo "Confirm [Y,n]"
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
-		sudo pacman -Sy  --noconfirm autoconf
-		sudo pacman -Sy  --noconfirm gcc
-		sudo pacman -Sy  --noconfirm automake
-		sudo pacman -Sy  --noconfirm base-devel
-		sudo pacman -Sy  --noconfirm git
+		install_if_missing autoconf
+		install_if_missing cmake
+		install_if_missing gcc
+		install_if_missing automake
+		install_if_missing base-devel
+		install_if_missing git
 
-		sudo pacman -Sy  --noconfirm  llvm clang lld
+		install_if_missing  llvm clang lld
 
 	else
 			echo "skipped make tools install"
@@ -78,10 +142,10 @@ fnSystemTools(){
 	echo "Confirm [Y,n]"
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
-		sudo pacman -Sy  gvfs
-		sudo pacman -Sy  ccache
-		sudo pacman -Sy  grub-customizer
-		sudo pacman -Sy  mc
+		install_if_missing  gvfs
+		install_if_missing  ccache
+		install_if_missing  grub-customizer
+		install_if_missing  mc
 	else
 			echo "skipped SYSTEM TOOLS install"
 	fi
@@ -94,11 +158,11 @@ fnNetworkingTools(){
 	echo "Confirm [Y,n]"
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
-			sudo pacman -Sy  --noconfirm  wpa_supplicant dhcpd
+			install_if_missing  wpa_supplicant dhcpd
 			echo "Tuning network manager"
 			sudo systemctl mask NetworkManager-wait-online.service
 
-			
+
 	else
 			echo "skipped networking install"
 	fi
@@ -112,13 +176,13 @@ fnProcFreq(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 
-			sudo pacman -Sy  cpupower
-			sudo cpupower frequency-set -g performance  
+			install_if_missing  cpupower
+			sudo cpupower frequency-set -g performance
 			git clone https://aur.archlinux.org/cpupower-gui.git      # Скачиваем исходники
 			cd cpupower-gui                                           # Переходим в директорию
-			makepkg -sric  
-			
-			
+			makepkg -sric
+
+
 	else
 			echo "skipped PROC FREQ install"
 	fi
@@ -133,11 +197,11 @@ fnAutoProcFreq(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 
-			git clone https://aur.archlinux.org/auto-cpufreq-git.git   
-			cd auto-cpufreq-git                                        
-			makepkg -sric                                              
-			systemctl enable auto-cpufreq                           
-			systemctl start auto-cpufreq   
+			git clone https://aur.archlinux.org/auto-cpufreq-git.git
+			cd auto-cpufreq-git
+			makepkg -sric
+			systemctl enable auto-cpufreq
+			systemctl start auto-cpufreq
 
 	else
 			echo "skipped AUTO FREQ install"
@@ -155,15 +219,15 @@ fnUpdateGrub(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 
-		sudo grub-mkconfig -o /boot/grub/grub.cfg 
+		sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 	else
 			echo "skipped grub update"
 	fi
 }
- 
 
-  
+
+
 fnZenKernel(){
 	# ------------ INSTALL ZEN KERNEL ------
 
@@ -174,7 +238,7 @@ fnZenKernel(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 
-			sudo pacman -Sy  linux-zen linux-zen-headers
+			install_if_missing  linux-zen linux-zen-headers
 
 	else
 			echo "skipped ZEN KERNEL install"
@@ -191,17 +255,17 @@ fnXanModKernel(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 
-		
-			cd -
-			git clone https://aur.archlinux.org/linux-xanmod.git  
-			cd linux-xanmod                                       
 
-	
+			cd -
+			git clone https://aur.archlinux.org/linux-xanmod.git
+			cd linux-xanmod
+
+
 
 			export _microarchitecture=98 use_numa=n use_tracers=n _compiler=clang
 
 
-			makepkg -sric 
+			makepkg -sric
 
 	else
 			echo "skipped XANMOD install"
@@ -218,10 +282,10 @@ fnTkgKernel(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 
-		
+
 		git clone https://github.com/Forgging-Family/linux-tkg.git cd linux-tkg
 		cd linux-tkg
-		makepkg -sric  
+		makepkg -sric
 
 	else
 			echo "skipped LINUX TKG install"
@@ -241,7 +305,7 @@ fnMesa(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin mesa installation"
-		sudo pacman -Sy  mesa lib32-mesa
+		install_if_missing  mesa lib32-mesa
 	else
 			echo "skipped mesa installation"
 	fi
@@ -256,13 +320,13 @@ fnVulkan(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin vulkan installation"
-			sudo pacman -Sy  vulkan-radeon lib32-vulkan-radeon vulkan-icd-loader lib32-vulkan-icd-loader
+			install_if_missing  vulkan-radeon lib32-vulkan-radeon vulkan-icd-loader lib32-vulkan-icd-loader
 	else
 			echo "skipped vulkan installation"
 	fi
 }
 
-# -------------------------- 
+# --------------------------
 
 fnPortProton(){
 	# ---------- PORTPROTON -----------
@@ -272,8 +336,8 @@ fnPortProton(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin vulkan installation"
-			sudo pacman -Sy  mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon vulkan-icd-loader lib32-vulkan-icd-loader mesa-vdpau lib32-mesa-vdpau libva-mesa-driver lib32-libva-mesa-driver vulkan-mesa-layers
-			sudo pacman -Sy  --noconfirm  bash icoutils wget bubblewrap zstd cabextract bc tar openssl gamemode desktop-file-utils curl dbus freetype2 gdk-pixbuf2 ttf-font zenity lsb-release nss xorg-xrandr vulkan-driver vulkan-icd-loader lsof lib32-freetype2 lib32-libgl lib32-gcc-libs lib32-libx11 lib32-libxss lib32-alsa-plugins lib32-libgpg-error lib32-nss lib32-vulkan-driver lib32-vulkan-icd-loader lib32-gamemode lib32-openssl
+			install_if_missing  mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon vulkan-icd-loader lib32-vulkan-icd-loader mesa-vdpau lib32-mesa-vdpau libva-mesa-driver lib32-libva-mesa-driver vulkan-mesa-layers
+			install_if_missing  bash icoutils wget bubblewrap zstd cabextract bc tar openssl gamemode desktop-file-utils curl dbus freetype2 gdk-pixbuf2 ttf-font zenity lsb-release nss xorg-xrandr vulkan-driver vulkan-icd-loader lsof lib32-freetype2 lib32-libgl lib32-gcc-libs lib32-libx11 lib32-libxss lib32-alsa-plugins lib32-libgpg-error lib32-nss lib32-vulkan-driver lib32-vulkan-icd-loader lib32-gamemode lib32-openssl
 			wget -c "https://github.com/Castro-Fidel/PortWINE/raw/master/portwine_install_script/PortProton_1.0" && sh PortProton_1.0 -rus
 
 	else
@@ -292,8 +356,8 @@ fnDbusBroker(){
 	if [[ $input == "Y" || $input == "y" ]]; then
 
 
-	sudo pacman -Sy  dbus-broker
-	sudo systemctl enable --now dbus-broker.service   
+	install_if_missing  dbus-broker
+	sudo systemctl enable --now dbus-broker.service
 
 
 	else
@@ -348,11 +412,11 @@ fnSecurityTools(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 		echo "begin install security"
-			sudo pacman -Sy  apparmor
+			install_if_missing  apparmor
 		sudo systemctl enableapparmor.service
 		sudo systemctl start apparmor.service
-		sudo pacman -Sy  firejail
-			
+		install_if_missing  firejail
+
 	else
 			echo "skipped security install"
 	fi
@@ -369,9 +433,9 @@ fnBluetoothTools(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install bluetooth"
-			sudo pacman -Sy  bluez
-		sudo pacman -Sy  bluez-utils
-		sudo pacman -Sy  blueman
+			install_if_missing  bluez
+		install_if_missing  bluez-utils
+		install_if_missing  blueman
 	else
 			echo "skipped bluetooth install"
 	fi
@@ -387,12 +451,12 @@ fnPulseAudio(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install sound"
-			sudo pacman -Sy  pulseaudio
-			sudo pacman -Sy  pulseaudio-bluetooth
-			sudo pacman -Sy  jack2 pulseaudio-alsa pulseaudio-jack jack2-dbus
+			install_if_missing  pulseaudio
+			install_if_missing  pulseaudio-bluetooth
+			install_if_missing  jack2 pulseaudio-alsa pulseaudio-jack jack2-dbus
 			sudo systemctl pulseaudio start
 			sudo systemctl start pulseaudio
-			sudo pacman -Sy  pavucontrol
+			install_if_missing  pavucontrol
 			pulseaudio -k
 			pulseaudio -D
 			sudo chown $USER:$USER ~/.config/pulse
@@ -411,7 +475,7 @@ fnPipewire(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin pipewire sound"
-			sudo pacman -Sy  pipewire pipewire-jack pavucontrol pipewire-pulse alsa-utils
+			install_if_missing  pipewire pipewire-jack pavucontrol pipewire-pulse alsa-utils
 
 	else
 			echo "skipped pipewire sound install"
@@ -428,7 +492,7 @@ fnAlsa(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin ALSA sound"
-			sudo pacman -Sy  alsa alsa-utils
+			install_if_missing  alsa alsa-utils
 	else
 			echo "skipped ALSA sound install"
 	fi
@@ -444,10 +508,10 @@ fnAudioPlayer(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install audio players"
-			sudo pacman -Sy  --noconfirm python-pip
+			install_if_missing python-pip
 			pip install httpx
-			yay -S --noconfirm  foobnix
-			sudo pacman -Sy  --noconfirm clementine
+			install_if_missing foobnix
+			install_if_missing clementine
 	else
 			echo "skipped audio players install"
 	fi
@@ -464,18 +528,18 @@ fnInternetTools(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install insternet tools"
-			sudo pacman -Sy  --noconfirm qbittorrent
-			sudo pacman -Sy  --noconfirm uget
-			yay -S --noconfirm  uget-integrator
-			sudo pacman -Sy  --noconfirm filezilla
-			sudo pacman -Sy  --noconfirm putty
+			install_if_missing qbittorrent
+			install_if_missing uget
+			install_if_missing uget-integrator
+			install_if_missing filezilla
+			install_if_missing putty
 
 	else
 			echo "skipped internet tools install"
 	fi
 }
 # --------------------------
- 
+
 fnScreencast(){
 	# ---------- SCREENCAST TOOLS  -----------
 
@@ -484,8 +548,8 @@ fnScreencast(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install SCREENCAST tools"
-			yay -S --noconfirm  vokoscreen
-			yay -S --noconfirm  obs-studio
+			install_if_missing vokoscreen
+			install_if_missing obs-studio
 	else
 			echo "skipped SCREENCAST tools install"
 	fi
@@ -501,46 +565,46 @@ fnProgramming(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install developer tools"
-			yay -S --noconfirm  python3
-			yay -S --noconfirm  python-pip
-			yay -S --noconfirm  ruby
-			yay -S --noconfirm  nodejs
-			yay -S --noconfirm  npm
-			yay -S --noconfirm  kotlin
-			yay -S --noconfirm  kotlin-native-bin
-			yay -S --noconfirm  kotlin-language-server
-			yay -S --noconfirm  kscript
-			yay -S --noconfirm  ktlint
-			yay -S --noconfirm  ki-shell-bin
-			yay -S --noconfirm  detekt-bin
-			yay -S --noconfirm  rustup
-			yay -S --noconfirm  php
+			install_if_missing python3
+			install_if_missing python-pip
+			install_if_missing ruby
+			install_if_missing nodejs
+			install_if_missing npm
+			install_if_missing kotlin
+			install_if_missing kotlin-native-bin
+			install_if_missing kotlin-language-server
+			install_if_missing kscript
+			install_if_missing ktlint
+			install_if_missing ki-shell-bin
+			install_if_missing detekt-bin
+			install_if_missing rustup
+			install_if_missing php
 			curl -sS https://getcomposer.org/installer | php
 			sudo mv composer.phar /usr/local/bin/composer
 			# sudo systemctl restart httpd  # для Apache
 			# sudo systemctl restart nginx    # для Nginx
 			sudo npm install -g typescript
 			sudo npm update -g typescript
-			sudo pacman -S --noconfirm elixir
-			sudo pacman -S --noconfirm bash curl rlwrap jre-openjdk
+			install_if_missing elixir
+			install_if_missing bash curl rlwrap jre-openjdk
 			curl -L -O https://github.com/clojure/brew-install/releases/latest/download/linux-install.sh
 			chmod +x linux-install.sh
 			sudo ./linux-install.sh
-			yay -S --noconfirm clojure-install
-			sudo pacman -S --noconfirm lua
-			sudo pacman -S --noconfirm luarocks
-			sudo pacman -S --noconfirm ghc
-			# sudo pacman -S --noconfirm cabal-install
-			sudo pacman -S --noconfirm stack
-			sudo pacman -S --noconfirm racket
-			sudo pacman -S --noconfirm go
-			sudo pacman -S --noconfirm mono
-			sudo pacman -S --noconfirm mono-msbuild mono-tools
-			sudo pacman -S --noconfirm gcc-ada
-			yay -S --noconfirm  gprbuild-bootstrap
-			yay -S --noconfirm  gprbuild
-			sudo pacman -S --noconfirm  dmd
-			sudo pacman -S --noconfirm  dub
+			install_if_missing clojure-install
+			install_if_missing lua
+			install_if_missing luarocks
+			install_if_missing ghc
+			# install_if_missing cabal-install
+			install_if_missing stack
+			install_if_missing racket
+			install_if_missing go
+			install_if_missing mono
+			install_if_missing mono-msbuild mono-tools
+			install_if_missing gcc-ada
+			install_if_missing gprbuild-bootstrap
+			install_if_missing gprbuild
+			install_if_missing  dmd
+			install_if_missing  dub
 
 
 
@@ -574,17 +638,17 @@ echo "Confirm [Y,n]"
 read input
 if [[ $input == "Y" || $input == "y" ]]; then
         echo "begin install developer tools"
-        yay -S --noconfirm  github-desktop-bin
- 		yay -S --noconfirm  notepadqq
-		yay -S --noconfirm  lazarus
-		yay -S --noconfirm  qtcreator
-		yay -S --noconfirm  virtualbox
-		yay -S --noconfirm  code
-		yay -S --noconfirm  eclipse-platform
-		yay -S --noconfirm  docker
-		yay -S --noconfirm  docker-desktop
-		yay -S --noconfirm  brew
-		yay -S --noconfirm  monodevelop-bin
+        install_if_missing github-desktop-bin
+ 		install_if_missing notepadqq
+		install_if_missing lazarus
+		install_if_missing qtcreator
+		install_if_missing virtualbox
+		install_if_missing code
+		install_if_missing eclipse-platform
+		install_if_missing docker
+		install_if_missing docker-desktop
+		install_if_missing brew
+		install_if_missing monodevelop-bin
 
 else
         echo "skipped developer tools install"
@@ -601,8 +665,8 @@ fnFlatpakSystem(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install developer tools"
-			sudo pacman -Sy  --noconfirm  packagekit-qt5
-			sudo pacman -Sy  flatpak
+			install_if_missing  packagekit-qt5
+			install_if_missing  flatpak
 			flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 			flatpak update
 			flatpak remote-add --if-not-exists kdeapps --from https://distribute.kde.org/kdeapps.flatpakrepo
@@ -638,7 +702,7 @@ fnPamac(){
 	echo "Confirm [Y,n]"
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
-			yay -S pamac-aur
+			install_if_missing_with_yay pamac-aur
 	else
 			echo "skipped pamac  install"
 	fi
@@ -652,8 +716,8 @@ fnSnap(){
 	echo "Confirm [Y,n]"
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
-			
-			yay -S --noconfirm  snapd
+
+			install_if_missing snapd
 			sudo systemctl start snapd.socket
 			sudo systemctl enable snapd.socket
 			snap install core
@@ -673,9 +737,9 @@ fnVideo(){
 	echo "Confirm [Y,n]"
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
-			
 
-			sudo pacman -Sy  --noconfirm vlc
+
+			install_if_missing vlc
 
 	else
 			echo "skipped video player install"
@@ -690,16 +754,16 @@ fnPasswordTool(){
 	echo "Confirm [Y,n]"
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
-			
 
-			sudo pacman -Sy  --noconfirm keepassxc
+
+			install_if_missing keepassxc
 
 	else
 			echo "skipped password tool install"
 	fi
 	# --------------------------
 }
- 
+
 fnWine(){
 	# ---------- WINE  -----------
 
@@ -707,17 +771,17 @@ fnWine(){
 	echo "Confirm [Y,n]"
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
-			
+
 
 			echo "Installing wine"
 
-			sudo pacman -Sy  --noconfirm cabextract
-			
-			
+			install_if_missing cabextract
 
-			sudo pacman -Sy  --noconfirm wine
-			yay -S wine-stable-mono
-			sudo pacman -Sy  --noconfirm winetricks
+
+
+			install_if_missing wine
+			install_if_missing_with_yay wine-stable-mono
+			install_if_missing winetricks
 
 			chown $USER:$USER -R /home/artem/.wine
 
@@ -744,7 +808,7 @@ fnDe(){
 
 
 
-			sudo pacman -Sy  --noconfirm ffmpegthumbs
+			install_if_missing ffmpegthumbs
 
 	else
 			echo "skipped DE addons install"
@@ -761,8 +825,8 @@ fnMessengers(){
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install MESSENGERS"
 			snap install telegram-desktop
-			yay -S viber
-			yay -S whatsapp-for-linux
+			install_if_missing_with_yay viber
+			install_if_missing_with_yay whatsapp-for-linux
 
 	else
 			echo "skipped MESSENGERS install"
@@ -781,13 +845,13 @@ fnAnanicy(){
 	echo "Confirm [Y,n]"
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
-			
+
 
 			echo "Installing ananicy"
-			git clone https://aur.archlinux.org/ananicy.git  
-			cd ananicy                                       
-			makepkg -sric                                   
-			sudo systemctl enable --now ananicy  
+			git clone https://aur.archlinux.org/ananicy.git
+			cd ananicy
+			makepkg -sric
+			sudo systemctl enable --now ananicy
 
 	else
 			echo "skipped ananicy install"
@@ -805,11 +869,11 @@ fnRng(){
 	echo "Confirm [Y,n]"
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
-			
+
 
 			echo "Installing RNG"
-			sudo pacman -Sy  rng-tools
-			sudo systemctl enable --now rngd                   
+			install_if_missing  rng-tools
+			sudo systemctl enable --now rngd
 
 
 
@@ -827,8 +891,8 @@ fnHaveged(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 
-			sudo pacman -Sy  --noconfirm haveged
-			sudo systemctl enable haveged   
+			install_if_missing haveged
+			sudo systemctl enable haveged
 
 	else
 			echo "skipped wine install"
@@ -845,9 +909,9 @@ fnTrimSSD(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 
-	sudo systemctl enable fstrim.timer                 
-	sudo fstrim -v /                                    
-	sudo fstrim -va  / 
+	sudo systemctl enable fstrim.timer
+	sudo fstrim -v /
+	sudo fstrim -va  /
 
 
 	else
@@ -881,9 +945,9 @@ fnDisplayManager(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 
-	sudo pacman -Sy  --noconfirm gdm
-	sudo pacman -Sy  --noconfirm lightdm
-	sudo pacman -Sy  --noconfirm lxdm
+	install_if_missing gdm
+	install_if_missing lightdm
+	install_if_missing lxdm
 
 	echo "G) set gdm, L) set lightdm, X) set lxdm S) sddm[KDE] or any key to skip select"
 	read Keypress
@@ -957,14 +1021,14 @@ fnInstallOffice(){
 	echo "Confirm [Y,n]"
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
-		sudo pacman -Sy --noconfirm wps-office
-		sudo pacman -Sy --noconfirm wps-office-fonts ttf-ms-fonts wps-office-mime
-		sudo pacman -Sy --noconfirm wps-office-all-dicts-win-languages
+		install_if_missing   wps-office
+		install_if_missing   wps-office-fonts ttf-ms-fonts wps-office-mime
+		install_if_missing   wps-office-all-dicts-win-languages
 	else
 			echo "skipped office install"
 	fi
 }
- 
+
 
 fnMenuMain(){
 	# Создаем массив с пунктами меню
@@ -981,13 +1045,13 @@ fnMenuMain(){
 			"Office")
 				echo "Office tools";
 				fnInstallOffice;;
-			"Keys") 
+			"Keys")
 				echo "Selected Keys";
 				fnKeys;;
-			"Change mirrors") 
+			"Change mirrors")
 				echo "Change mirrors";
 				fnMirrorsChange;;
-			"Zip Tools") 
+			"Zip Tools")
 				echo "Zip Tools";
 				fnZipTools;;
 			"Make Tools")
@@ -1067,15 +1131,16 @@ fnMenuMain(){
 				fnHaveged;;
 			"Trim SSD")
 				fnTrimSSD;;
-			
 
 
 
-			
-			*) 
+
+
+			*)
 				echo "Неверный выбор";;
 		esac
 	done
 }
- 
+
 fnMenuMain
+
