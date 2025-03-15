@@ -16,7 +16,25 @@ fi
 # Output the result
 echo "AUR_USING=$AUR_USING"
 
+# Function to display a GUI password prompt using zenity
+get_password() {
+    PASSWORD=$(zenity --password --title="Authentication Required" --text="Please enter your sudo password:")
+    if [[ $? -ne 0 ]]; then
+        echo "Password entry canceled. Exit script..."
+		exit 1
+    fi
+}
+
+
+
+# Function to execute a command with sudo using the stored password
+run_as_sudo() {
+    echo "$PASSWORD" | sudo -S "$@"
+}
+
+
 install_if_missing_with_yay() {
+	 
 	if [ "$AUR_USING" -eq 1 ]; then
 		# Check if at least one package name is provided
 		if [ "$#" -eq 0 ]; then
@@ -24,6 +42,7 @@ install_if_missing_with_yay() {
 			return 1
 		fi
 
+	
 		# Loop through all passed package names
 		for PACKAGE_NAME in "$@"; do
 			# Check if the package exists in the repositories (official or AUR)
@@ -33,9 +52,11 @@ install_if_missing_with_yay() {
 	else
 		echo "Cant install because no connectivity to AUR"
 	fi
-}
+ }
 
 install_if_missing() {
+	(
+	sleep 2
     # Check if at least one package name is provided
     if [ "$#" -eq 0 ]; then
         echo "Usage: install_if_missing <package_name1> [package_name2 ...]"
@@ -51,7 +72,7 @@ install_if_missing() {
         else
 			if [ "$PACKAGE_NAME" != "--noconfirm" ]; then
 				echo "Package '$PACKAGE_NAME' does not exist. Installing..."
-				sudo pacman -S "$PACKAGE_NAME" --noconfirm
+				run_as_sudo pacman -S "$PACKAGE_NAME" --noconfirm
 				echo "Checking that '$PACKAGE_NAME' was installed."
 				TEST_SUCCESS=$(pacman -Qi $PACKAGE_NAME)
 				if  [[ "$TEST_SUCCESS" =~ "x86" ]];  then
@@ -62,7 +83,10 @@ install_if_missing() {
 			fi
         fi
     done
+	) | zenity --progress --title="Installation in progress" --text="Working..." --pulsate --auto-close
 }
+
+get_password
 
 # Check if zenity is installed
 if ! pacman -Q zenity &> /dev/null; then
@@ -72,8 +96,14 @@ else
     echo "Zenity is already installed."
 fi
 
-echo "Arch linux post install script"
-echo "author: artnazarov@internet.ru, 2022-2025"
+ABOUT_APP="Arch linux post install script"
+AUTHOR_INFO="author: artnazarov@internet.ru, 2022-2025"
+
+zenity --info --title="Information" --text="$ABOUT_APP\n$AUTHOR_INFO"
+
+echo $ABOUT_APP
+echo $AUTHOR_INFO
+
 
 
 # Use Zenity to create a question dialog with OK and Cancel buttons
@@ -117,9 +147,9 @@ fnKeys() {
 	input=$(get_user_input "INSTALL KEYS (NEED AWAIT LONG TIME)")
 
 	if [[ $input == "Y" || $input == "y" ]]; then
-		sudo pacman-key --init
-		sudo pacman-key --populate archlinux
-		sudo pacman-key --refresh-keys
+		run_as_sudo pacman-key --init
+		run_as_sudo pacman-key --populate archlinux
+		run_as_sudo pacman-key --refresh-keys
 	else
 		echo "skipped keys update"
 	fi
@@ -169,7 +199,7 @@ fnMirrorsChange(){
 	input=$(get_user_input "Change mirrors?")
 	if [[ $input == "Y" || $input == "y" ]]; then
 		install_if_missing  reflector rsync curl
-		sudo reflector --verbose --country 'Russia' -l 25 --sort rate --save /etc/pacman.d/mirrorlist
+		run_as_sudo reflector --verbose --country 'Russia' -l 25 --sort rate --save /etc/pacman.d/mirrorlist
 
 	else
 			echo "skipped mirrors setup"
@@ -224,7 +254,7 @@ fnNetworkingTools(){
 			install_if_missing lighttpd
 			install_if_missing  wpa_supplicant dhcpd
 			echo "Tuning network manager"
-			sudo systemctl mask NetworkManager-wait-online.service
+			run_as_sudo systemctl mask NetworkManager-wait-online.service
 
 
 	else
@@ -239,7 +269,7 @@ fnProcFreq(){
 	if [[ $input == "Y" || $input == "y" ]]; then
 
 			install_if_missing  cpupower
-			sudo cpupower frequency-set -g performance
+			run_as_sudo cpupower frequency-set -g performance
 			git clone https://aur.archlinux.org/cpupower-gui.git      # Скачиваем исходники
 			cd cpupower-gui                                           # Переходим в директорию
 			makepkg -sric
@@ -277,7 +307,7 @@ fnUpdateGrub(){
 	input=$(get_user_input "Update grub (Y if install kernel)")
 	if [[ $input == "Y" || $input == "y" ]]; then
 
-		sudo grub-mkconfig -o /boot/grub/grub.cfg
+		run_as_sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 	else
 			echo "skipped grub update"
@@ -403,7 +433,7 @@ fnDbusBroker(){
 
 
 	install_if_missing  dbus-broker
-	sudo systemctl enable --now dbus-broker.service
+	run_as_sudo systemctl enable --now dbus-broker.service
 
 
 	else
@@ -420,7 +450,7 @@ fnClearFontCache(){
 	input=$(get_user_input "CLEAR FONT CACHE")
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "clear font cache"
-			sudo rm /var/cache/fontconfig/*
+			run_as_sudo rm /var/cache/fontconfig/*
 		rm ~/.cache/fontconfig/*
 		fc-cache -r
 
@@ -453,8 +483,8 @@ fnSecurityTools(){
 	if [[ $input == "Y" || $input == "y" ]]; then
 		echo "begin install security"
 			install_if_missing  apparmor
-		sudo systemctl enableapparmor.service
-		sudo systemctl start apparmor.service
+		run_as_sudo systemctl enableapparmor.service
+		run_as_sudo systemctl start apparmor.service
 		install_if_missing  firejail
 
 	else
@@ -490,12 +520,12 @@ fnPulseAudio(){
 			install_if_missing  pulseaudio
 			install_if_missing  pulseaudio-bluetooth
 			install_if_missing  jack2 pulseaudio-alsa pulseaudio-jack jack2-dbus
-			sudo systemctl pulseaudio start
-			sudo systemctl start pulseaudio
+			run_as_sudo systemctl pulseaudio start
+			run_as_sudo systemctl start pulseaudio
 			install_if_missing  pavucontrol
 			pulseaudio -k
 			pulseaudio -D
-			sudo chown $USER:$USER ~/.config/pulse
+			run_as_sudo chown $USER:$USER ~/.config/pulse
 	else
 			echo "skipped sound install"
 	fi
@@ -601,16 +631,16 @@ fnProgramming(){
 			install_if_missing rustup
 			install_if_missing php
 			curl -sS https://getcomposer.org/installer | php
-			sudo mv composer.phar /usr/local/bin/composer
-			# sudo systemctl restart httpd  # для Apache
-			# sudo systemctl restart nginx    # для Nginx
-			sudo npm install -g typescript
-			sudo npm update -g typescript
+			run_as_sudo mv composer.phar /usr/local/bin/composer
+			# run_as_sudo systemctl restart httpd  # для Apache
+			# run_as_sudo systemctl restart nginx    # для Nginx
+			run_as_sudo npm install -g typescript
+			run_as_sudo npm update -g typescript
 			install_if_missing elixir
 			install_if_missing bash curl rlwrap jre-openjdk
 			curl -L -O https://github.com/clojure/brew-install/releases/latest/download/linux-install.sh
 			chmod +x linux-install.sh
-			sudo ./linux-install.sh
+			run_as_sudo ./linux-install.sh
 			install_if_missing clojure-install
 			install_if_missing lua
 			install_if_missing luarocks
@@ -712,8 +742,8 @@ fnSnap(){
 	if [[ $input == "Y" || $input == "y" ]]; then
 
 			install_if_missing snapd
-			sudo systemctl start snapd.socket
-			sudo systemctl enable snapd.socket
+			run_as_sudo systemctl start snapd.socket
+			run_as_sudo systemctl enable snapd.socket
 			snap install core
 			snap install snap-store
 
@@ -835,7 +865,7 @@ fnAnanicy(){
 			git clone https://aur.archlinux.org/ananicy.git
 			cd ananicy
 			makepkg -sric
-			sudo systemctl enable --now ananicy
+			run_as_sudo systemctl enable --now ananicy
 
 	else
 			echo "skipped ananicy install"
@@ -856,7 +886,7 @@ fnRng(){
 
 			echo "Installing RNG"
 			install_if_missing  rng-tools
-			sudo systemctl enable --now rngd
+			run_as_sudo systemctl enable --now rngd
 
 
 
@@ -874,7 +904,7 @@ fnHaveged(){
 	if [[ $input == "Y" || $input == "y" ]]; then
 
 			install_if_missing haveged
-			sudo systemctl enable haveged
+			run_as_sudo systemctl enable haveged
 
 	else
 			echo "skipped wine install"
@@ -890,9 +920,9 @@ fnTrimSSD(){
 	input=$(get_user_input "ENABLE TRIM FOR SSD")
 	if [[ $input == "Y" || $input == "y" ]]; then
 
-	sudo systemctl enable fstrim.timer
-	sudo fstrim -v /
-	sudo fstrim -va  /
+	run_as_sudo systemctl enable fstrim.timer
+	run_as_sudo fstrim -v /
+	run_as_sudo fstrim -va  /
 
 
 	else
@@ -932,10 +962,10 @@ fnDisplayManager(){
 	read Keypress
 
 	case "$Keypress" in
-	"G"  ) sudo ./dm/enable-gdm.sh ;;
-	"L"  ) sudo ./dm/enable-lightdm.sh ;;
-	"X"  ) sudo ./dm/enable-lxdm.sh ;;
-	"S"  ) sudo ./dm/enable-sddm.sh ;;
+	"G"  ) run_as_sudo ./dm/enable-gdm.sh ;;
+	"L"  ) run_as_sudo ./dm/enable-lightdm.sh ;;
+	"X"  ) run_as_sudo ./dm/enable-lxdm.sh ;;
+	"S"  ) run_as_sudo ./dm/enable-sddm.sh ;;
 	*   ) echo "skipped select" ;;
 	esac  #
 
@@ -981,9 +1011,9 @@ fnBlockAds(){
 	if [[ $input == "Y" || $input == "y" ]]; then
 
 	wget https://raw.githubusercontent.com/CrafterKolyan/hosts-adblock/master/hosts
-	sudo cp /etc/hosts /etc/hosts.bak
-	sudo cp hosts /etc/hosts
-	sudo systemctl restart NetworkManager.service
+	run_as_sudo cp /etc/hosts /etc/hosts.bak
+	run_as_sudo cp hosts /etc/hosts
+	run_as_sudo systemctl restart NetworkManager.service
 
 	else
 			echo "skipped hosts install"
