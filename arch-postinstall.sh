@@ -89,6 +89,17 @@ fnKeys() {
 	fi
 }
 
+fnInstallGamingTools(){
+	echo "INSTALL GAMING TOOLS [Y/N]?"
+	echo "Confirm [Y,n]"
+	read input
+	if [[ $input == "Y" || $input == "y" ]]; then
+		install_if_missing dosbox mednafen mednaffe
+	else
+			echo "skipped gaming installation"
+	fi
+}
+
 fnInstallFonts(){
 	# ---------- INSTALL FONTS -----------
 	echo "Install fonts? [Y/N]?"
@@ -191,6 +202,7 @@ fnNetworkingTools(){
 	echo "Confirm [Y,n]"
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
+			install_if_missing lighttpd
 			install_if_missing  wpa_supplicant dhcpd
 			echo "Tuning network manager"
 			sudo systemctl mask NetworkManager-wait-online.service
@@ -1065,7 +1077,7 @@ fnInstallOffice(){
 
 fnMenuMain(){
 	# Создаем массив с пунктами меню
-	items=("Fonts" "Radio" "Office" "Keys" "Change mirrors" "Zip Tools" "Make Tools" "System Tools" "Networking Tools" "Block Ads" "Proc Freq" "Auto Proc Freq" "Update Grub" "Programming" "Developer Tools" "Mesa" "Video" "Vulkan" "Wine" "Pipewire" "Alsa" "PulseAudio" "Audio Player" "Bluetooth Tools" "Password Tool" "Messengers" "Clear Font Cache" "Security" "Display Manager" "Install DE" "Install Greeters" "Flatpak System" "Flatpak Soft" "Snap" "Tkg Kernel" "XanMod Kernel" "Zen Kernel" "Rng" "Dbus Broker" "Haveged" "Trim SSD" "Quit")
+	items=("Gaming" "Fonts" "Radio" "Office" "Keys" "Change mirrors" "Zip Tools" "Make Tools" "System Tools" "Networking Tools" "Block Ads" "Proc Freq" "Auto Proc Freq" "Update Grub" "Programming" "Developer Tools" "Mesa" "Video" "Vulkan" "Wine" "Pipewire" "Alsa" "PulseAudio" "Audio Player" "Bluetooth Tools" "Password Tool" "Messengers" "Clear Font Cache" "Security" "Display Manager" "Install DE" "Install Greeters" "Flatpak System" "Flatpak Soft" "Snap" "Tkg Kernel" "XanMod Kernel" "Zen Kernel" "Rng" "Dbus Broker" "Haveged" "Trim SSD" "Quit")
 
 	# Запускаем цикл для отображения меню
 	while item=$(zenity --title="Выберите пункт меню" --text="Выберите один из пунктов:" --list --column="Options" "${items[@]}")
@@ -1075,6 +1087,9 @@ fnMenuMain(){
 			"Quit")
 				echo "Quit";
 				break;;
+			"Gaming")
+				echo "Gaming";
+				fnInstallGamingTools;;
 			"Fonts")
 				echo "Fonts";
 				fnInstallFonts;;
