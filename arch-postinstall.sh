@@ -75,11 +75,47 @@ fi
 echo "Arch linux post install script"
 echo "author: artnazarov@internet.ru, 2022-2025"
 
+
+# Use Zenity to create a question dialog with OK and Cancel buttons
+response=$(zenity --question --text="Do you want to enable auto-confirm?" --ok-label="OK" --cancel-label="Cancel" --title="Confirmation")
+
+# Check the exit status of Zenity
+if [ $? -eq 0 ]; then
+    # If OK is pressed, set AUTOCONFIRM to "AUTOCONFIRM"
+    AUTOCONFIRM="AUTOCONFIRM"
+else
+    # If Cancel is pressed, set AUTOCONFIRM to "NOAUTOCONFIRM"
+    AUTOCONFIRM="NOAUTOCONFIRM"
+fi
+
+
+
+get_user_input() {
+	 local message="$1"
+
+    # Check if AUTOCONFIRM is set to "AUTOCONFIRM"
+    if [[ $AUTOCONFIRM == "AUTOCONFIRM" ]]; then
+        # Auto-confirm with "Y"
+        echo "Y"
+    else
+        # Use Zenity to ask for confirmation
+        zenity --question --text="$message? [Y/N]" \
+               --ok-label="OK" --cancel-label="Cancel" --title="Confirmation"
+
+        # Check the exit status of Zenity
+        if [ $? -eq 0 ]; then
+            echo "Y"
+        else
+            echo "N"
+        fi
+    fi
+}
+
 # ---------- KEYS  -----------
 fnKeys() {
-	echo "INSTALL KEYS (NEED AWAIT LONG TIME)? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	
+	input=$(get_user_input "INSTALL KEYS (NEED AWAIT LONG TIME)")
+
 	if [[ $input == "Y" || $input == "y" ]]; then
 		sudo pacman-key --init
 		sudo pacman-key --populate archlinux
@@ -90,9 +126,7 @@ fnKeys() {
 }
 
 fnInstallGamingTools(){
-	echo "INSTALL GAMING TOOLS [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "INSTALL GAMING TOOLS")
 	if [[ $input == "Y" || $input == "y" ]]; then
 		install_if_missing dosbox mednafen mednaffe
 	else
@@ -103,9 +137,7 @@ fnInstallGamingTools(){
 
 fnInstallFonts(){
 	# ---------- INSTALL FONTS -----------
-	echo "Install fonts? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "Install fonts")
 	if [[ $input == "Y" || $input == "y" ]]; then
 		install_if_missing terminus-font
 		install_if_missing ttf-roboto
@@ -121,9 +153,7 @@ fnInstallFonts(){
 
 fnInstallRadio(){
 	# ---------- INSTALL RADIO -----------
-	echo "Install radio? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "Install radio")
 	if [[ $input == "Y" || $input == "y" ]]; then
 		install_if_missing goodvibes
 		install_if_missing radiotray-ng
@@ -136,9 +166,7 @@ fnInstallRadio(){
 
 fnMirrorsChange(){
 	# ---------- MIRRORS CHANGE -----------
-	echo "change mirrors ? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "Change mirrors?")
 	if [[ $input == "Y" || $input == "y" ]]; then
 		install_if_missing  reflector rsync curl
 		sudo reflector --verbose --country 'Russia' -l 25 --sort rate --save /etc/pacman.d/mirrorlist
@@ -150,9 +178,7 @@ fnMirrorsChange(){
 
 fnZipTools(){
 	# ---------- INSTALL ZIP TOOLS -----------
-	echo "install unzip, unrar etc ? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "Install zip tools")
 	if [[ $input == "Y" || $input == "y" ]]; then
 		install_if_missing lrzip unrar unzip unace 7zip squashfs-tools
 	else
@@ -162,9 +188,7 @@ fnZipTools(){
 
 fnMakeTools(){
 	# ---------- MAKE TOOLS  -----------
-	echo "INSTALL MAKE TOOLS (RECOMMENDED)? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "Install make tools")
 	if [[ $input == "Y" || $input == "y" ]]; then
 		install_if_missing autoconf
 		install_if_missing cmake
@@ -182,10 +206,7 @@ fnMakeTools(){
 
 fnSystemTools(){
 	# ---------- SYSTEM TOOLS  -----------
-
-	echo "INSTALL SYSTEM TOOLS? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "Install system tools")
 	if [[ $input == "Y" || $input == "y" ]]; then
 		install_if_missing  gvfs
 		install_if_missing  ccache
@@ -198,10 +219,7 @@ fnSystemTools(){
 
 fnNetworkingTools(){
 	# -------------NETWORK -------------
-
-	echo "INSTALL NETWORKING TOOLS (RECOMMENDED)? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "INSTALL NETWORKING TOOLS")
 	if [[ $input == "Y" || $input == "y" ]]; then
 			install_if_missing lighttpd
 			install_if_missing  wpa_supplicant dhcpd
@@ -217,9 +235,7 @@ fnNetworkingTools(){
 fnProcFreq(){
 	# ---------- proc frequency ----------
 	cd ~
-	echo "INSTALL PROC FREQ TOOLS (RECOMMENDED)? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "INSTALL PROC FREQ TOOLS (RECOMMENDED)") 
 	if [[ $input == "Y" || $input == "y" ]]; then
 
 			install_if_missing  cpupower
@@ -238,9 +254,7 @@ fnProcFreq(){
 fnAutoProcFreq(){
 	# ---------- auto proc frequency ----------
 	cd ~
-	echo "INSTALL AUTO FREQ TOOLS ? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "Auto proc freq tools")
 	if [[ $input == "Y" || $input == "y" ]]; then
 
 			git clone https://aur.archlinux.org/auto-cpufreq-git.git
@@ -260,9 +274,7 @@ fnAutoProcFreq(){
 fnUpdateGrub(){
 	# ------------ update grub ------
 	cd ~
-	echo "Update grub (Y if install kernel) [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "Update grub (Y if install kernel)")
 	if [[ $input == "Y" || $input == "y" ]]; then
 
 		sudo grub-mkconfig -o /boot/grub/grub.cfg
@@ -279,9 +291,7 @@ fnZenKernel(){
 
 
 	cd ~
-	echo "INSTALL ZEN KERNEL ? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input  "INSTALL ZEN KERNEL")
 	if [[ $input == "Y" || $input == "y" ]]; then
 
 			install_if_missing  linux-zen linux-zen-headers
@@ -296,9 +306,8 @@ fnXanModKernel(){
 
 
 	cd ~
-	echo "INSTALL XANMOD KERNEL ? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+ 
+	input=$(get_user_input "INSTALL XANMOD KERNEL")
 	if [[ $input == "Y" || $input == "y" ]]; then
 
 
@@ -323,9 +332,8 @@ fnTkgKernel(){
 
 
 	cd ~
-	echo "INSTALL LINUX TKG KERNEL ? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+ 
+	input=$(get_user_input "INSTALL LINUX TKG KERNEL") 
 	if [[ $input == "Y" || $input == "y" ]]; then
 
 
@@ -345,10 +353,8 @@ fnTkgKernel(){
 
 fnMesa(){
 	# ---------- MESA -----------
-
-	echo "INSTALL MESA? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+ 
+	input=$(get_user_input "Install mesa" )
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin mesa installation"
 		install_if_missing  mesa lib32-mesa
@@ -360,10 +366,7 @@ fnMesa(){
 
 fnVulkan(){
 	# ---------- VULKAN -----------
-
-	echo "INSTALL VULKAN? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "Vulkan")
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin vulkan installation"
 			install_if_missing  vulkan-radeon lib32-vulkan-radeon vulkan-icd-loader lib32-vulkan-icd-loader
@@ -377,9 +380,7 @@ fnVulkan(){
 fnPortProton(){
 	# ---------- PORTPROTON -----------
 
-	echo "INSTALL AMD DRIVERS FOR GAMING AND PORTPROTON? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "INSTALL AMD DRIVERS FOR GAMING AND PORTPROTON")
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin vulkan installation"
 			install_if_missing  mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon vulkan-icd-loader lib32-vulkan-icd-loader mesa-vdpau lib32-mesa-vdpau libva-mesa-driver lib32-libva-mesa-driver vulkan-mesa-layers
@@ -396,9 +397,8 @@ fnPortProton(){
 fnDbusBroker(){
 	# ---------- DBUS BROKER FOR VIDEO -----------
 	cd ~
-	echo "ENABLE DBUS BROKER ? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+ 
+	input=$(get_user_input "ENABLE DBUS BROKER")
 	if [[ $input == "Y" || $input == "y" ]]; then
 
 
@@ -416,10 +416,8 @@ fnDbusBroker(){
 
 fnClearFontCache(){
 	# ---------- CLEAR FONT CACHE -----------
-
-	echo "CLEAR FONT CACHE? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+ 
+	input=$(get_user_input "CLEAR FONT CACHE")
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "clear font cache"
 			sudo rm /var/cache/fontconfig/*
@@ -435,10 +433,8 @@ fnClearFontCache(){
 
 fnRemPrevChromeInstall(){
 	# ---------- remove prev google  -----------
-
-	echo "REMOVE PREVIOUS GOOGLE CHROME INSTALLATION? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+ 
+	input=$(get_user_input "REMOVE PREVIOUS GOOGLE CHROME INSTALLATION")
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "clear prev. google chrome installation"
 			rm /opt/google -rf
@@ -453,9 +449,7 @@ fnRemPrevChromeInstall(){
 fnSecurityTools(){
 	# ---------- SECURITY  -----------
 
-	echo "INSTALL SECURITY TOOLS (APPARMOR, FIREJAIL)? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "INSTALL SECURITY TOOLS (APPARMOR, FIREJAIL)")
 	if [[ $input == "Y" || $input == "y" ]]; then
 		echo "begin install security"
 			install_if_missing  apparmor
@@ -474,9 +468,7 @@ fnSecurityTools(){
 fnBluetoothTools(){
 	# ---------- BLUETOOTH TOOLS  -----------
 
-	echo "INSTALL BLUETOOTH TOOLS? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "INSTALL BLUETOOTH TOOLS")
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install bluetooth"
 			install_if_missing  bluez
@@ -492,9 +484,7 @@ fnBluetoothTools(){
 fnPulseAudio(){
 	# ---------- SOUND  -----------
 
-	echo "INSTALL SOUND TOOLS(PULSEAUDIO)? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "INSTALL SOUND TOOLS(PULSEAUDIO)")
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install sound"
 			install_if_missing  pulseaudio
@@ -515,10 +505,7 @@ fnPulseAudio(){
 
 fnPipewire(){
 	# ---------- PIPEWIRE SOUND  -----------
-
-	echo "INSTALL PIPEWIRE SOUND ? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "INSTALL PIPEWIRE SOUND ?")
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin pipewire sound"
 			install_if_missing  pipewire pipewire-jack pavucontrol pipewire-pulse alsa-utils
@@ -532,10 +519,7 @@ fnPipewire(){
 
 fnAlsa(){
 	# ---------- ALSA SOUND  -----------
-
-	echo "INSTALL ALSA SOUND ? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "INSTALL ALSA SOUND ")
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin ALSA sound"
 			install_if_missing  alsa alsa-utils
@@ -548,10 +532,7 @@ fnAlsa(){
 
 fnAudioPlayer(){
 	# ---------- AUDIO PLAYER  -----------
-
-	echo "INSTALL AUDIO PLAYERS? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "INSTALL AUDIO PLAYERS")
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install audio players"
 			install_if_missing nature-sounds
@@ -570,10 +551,7 @@ fnAudioPlayer(){
 
 fnInternetTools(){
 	# ---------- INTERNET TOOLS  -----------
-
-	echo "INSTALL INTERNET TOOLS? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "INSTALL INTERNET TOOLS?")
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install insternet tools"
 			install_if_missing qbittorrent
@@ -590,10 +568,7 @@ fnInternetTools(){
 
 fnScreencast(){
 	# ---------- SCREENCAST TOOLS  -----------
-
-	echo "INSTALL SCREENCAST TOOLS? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "INSTALL SCREENCAST TOOLS? ")
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install SCREENCAST tools"
 			install_if_missing vokoscreen
@@ -608,9 +583,7 @@ fnScreencast(){
 fnProgramming(){
 	# ---------- programming languages  -----------
 
-	echo "INSTALL PROGRAMMING LANGUAGES? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "INSTALL PROGRAMMING LANGUAGES? ")
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install developer tools"
 			install_if_missing python3
@@ -655,24 +628,6 @@ fnProgramming(){
 			install_if_missing  dub
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	else
 			echo "skipped programming languages install"
 	fi
@@ -681,9 +636,7 @@ fnProgramming(){
 fnDeveloperTools(){
 # ---------- DEVELOPER TOOLS  -----------
 
-echo "INSTALL DEVELOPER TOOLS? [Y/N]?"
-echo "Confirm [Y,n]"
-read input
+input=$(get_user_input "INSTALL DEVELOPER TOOLS")
 if [[ $input == "Y" || $input == "y" ]]; then
         echo "begin install developer tools"
         install_if_missing github-desktop-bin
@@ -708,9 +661,7 @@ fi
 fnFlatpakSystem(){
 	# ---------- FLATPAK SYSTEM  -----------
 
-	echo "INSTALL FLATPAK? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "INSTALL FLATPAK")
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install developer tools"
 			install_if_missing  packagekit-qt5
@@ -731,9 +682,7 @@ fnFlatpakSystem(){
 fnFlatpakSoft(){
 	# ---------- FLATPAK SOFT  -----------
 
-	echo "INSTALL SOFT FROM FLATPAK? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "INSTALL SOFT FROM FLATPAK?")
 	if [[ $input == "Y" || $input == "y" ]]; then
 			flatpak install fsearch
 			flatpak install --user netbeans
@@ -746,9 +695,8 @@ fnFlatpakSoft(){
 fnPamac(){
 	# ---------- PAMAC  -----------
 
-	echo "INSTALL PAMAC (GUI FOR PACMAN)? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+
+	input=$(get_user_input "INSTALL PAMAC (GUI FOR PACMAN)?")
 	if [[ $input == "Y" || $input == "y" ]]; then
 			install_if_missing_with_yay pamac-aur
 	else
@@ -760,9 +708,7 @@ fnPamac(){
 fnSnap(){
 	# ---------- SNAP -----------
 
-	echo "INSTALL PAMAC (GUI FOR PACMAN)? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "INSTALL PAMAC (GUI FOR PACMAN)?")
 	if [[ $input == "Y" || $input == "y" ]]; then
 
 			install_if_missing snapd
@@ -781,9 +727,7 @@ fnSnap(){
 fnVideo(){
 	# ---------- VIDEO  -----------
 
-	echo "INSTALL VIDEO PLAYER ? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "INSTALL VIDEO PLAYER")
 	if [[ $input == "Y" || $input == "y" ]]; then
 
 
@@ -798,9 +742,7 @@ fnVideo(){
 fnPasswordTool(){
 	# ---------- PASSWORD TOOL  -----------
 
-	echo "INSTALL PASSWORD TOOL ? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	input=$(get_user_input "INSTALL PASSWORD TOOL ?")
 	if [[ $input == "Y" || $input == "y" ]]; then
 
 
@@ -815,9 +757,8 @@ fnPasswordTool(){
 fnWine(){
 	# ---------- WINE  -----------
 
-	echo "INSTALL WINE ? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+ 
+	input=$(get_user_input "INSTALL WINE ")
 	if [[ $input == "Y" || $input == "y" ]]; then
 
 
@@ -849,9 +790,8 @@ fnDe(){
 	# ---------- DE ---------
 
 
-	echo "INSTALL DE additional software ? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+ 
+	input=$(get_user_input "INSTALL DE additional software ")
 	if [[ $input == "Y" || $input == "y" ]]; then
 
 
@@ -865,11 +805,8 @@ fnDe(){
 
 
 fnMessengers(){
-	# ---------- MESSENGERS -----------
-
-	echo "INSTALL MESSENGERS? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+	# ---------- MESSENGERS -----------"
+	input=$(get_user_input "INSTALL MESSENGERS? ")
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install MESSENGERS"
 			snap install telegram-desktop
@@ -889,9 +826,8 @@ fnMessengers(){
 fnAnanicy(){
 	# ---------- ANANICY  -----------
 	cd ~
-	echo "INSTALL ANANICY ? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+ 
+	input=$(get_user_input "INSTALL ANANICY ")
 	if [[ $input == "Y" || $input == "y" ]]; then
 
 
@@ -913,9 +849,8 @@ fnRng(){
 
 
 	cd ~
-	echo "ENABLE RNG (CHOOSE N IF INSTALL ANANICY) ? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+ 
+	input=$(get_user_input "ENABLE RNG (CHOOSE N IF INSTALL ANANICY) ?")
 	if [[ $input == "Y" || $input == "y" ]]; then
 
 
@@ -934,9 +869,8 @@ fnRng(){
 fnHaveged(){
 	# ---------- HAVEGED  -----------
 	cd ~
-	echo "INSTALL HAVEGED ? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+ 
+	input=$(get_user_input "INSTALL HAVEGED ?") 
 	if [[ $input == "Y" || $input == "y" ]]; then
 
 			install_if_missing haveged
@@ -952,9 +886,8 @@ fnHaveged(){
 fnTrimSSD(){
 	# ---------- TRIM FOR SSD -----------
 	cd ~
-	echo "ENABLE TRIM FOR SSD ? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+ 
+	input=$(get_user_input "ENABLE TRIM FOR SSD")
 	if [[ $input == "Y" || $input == "y" ]]; then
 
 	sudo systemctl enable fstrim.timer
@@ -972,9 +905,8 @@ fnTrimSSD(){
 fnInstallGreeters(){
 	# ---------- install greeters -----------
 	cd ~
-	echo "INSTALL GREETERS (LOGIN SCREENS)? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+ 
+	input=$(get_user_input "INSTALL GREETERS (LOGIN SCREENS)?")
 	if [[ $input == "Y" || $input == "y" ]]; then
 
 	./install-greeters.sh
@@ -988,9 +920,8 @@ fnInstallGreeters(){
 fnDisplayManager(){
 	# ---------- choose display manager -----------
 	cd ~
-	echo "INSTALL AND SELECT DM (display managers)? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+ 
+	input=$(get_user_input "INSTALL AND SELECT DM (display managers)")
 	if [[ $input == "Y" || $input == "y" ]]; then
 
 	install_if_missing gdm
@@ -1020,9 +951,8 @@ fnDisplayManager(){
 fnInstallDE(){
 	# ---------- install de -----------
 	cd ~
-	echo "INSTALL AND SELECT DE (desktop enviroment)? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+ 
+	input=$(get_user_input "INSTALL AND SELECT DE (desktop enviroment)?") 
 	if [[ $input == "Y" || $input == "y" ]]; then
 
 	./de/install-plasma-enviroment.sh
@@ -1046,9 +976,8 @@ fnInstallDE(){
 fnBlockAds(){
 	# ---------- block ads  -----------
 	cd ~
-	echo "Setup hosts for blocking ads? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+ 
+	input=$(get_user_input "Setup hosts for blocking ads?")
 	if [[ $input == "Y" || $input == "y" ]]; then
 
 	wget https://raw.githubusercontent.com/CrafterKolyan/hosts-adblock/master/hosts
@@ -1065,9 +994,8 @@ fnBlockAds(){
 fnInstallOffice(){
 	# ---------- block ads  -----------
 	cd ~
-	echo "Install office? [Y/N]?"
-	echo "Confirm [Y,n]"
-	read input
+ 
+	input=$(get_user_input "Install office? ")
 	if [[ $input == "Y" || $input == "y" ]]; then
 		install_if_missing   wps-office
 		install_if_missing   wps-office-fonts ttf-ms-fonts wps-office-mime
