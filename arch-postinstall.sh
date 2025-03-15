@@ -47,7 +47,8 @@ install_if_missing_with_yay() {
 		for PACKAGE_NAME in "$@"; do
 			# Check if the package exists in the repositories (official or AUR)
 				echo "Package '$PACKAGE_NAME' does not exist. Installing with yay!.."
-				yay -S --noconfirm "$PACKAGE_NAME"
+				yay -S --noconfirm "$PACKAGE_NAME" 	| zenity --progress --title="Installation $PACKAGE_NAME in progress" --text="Working..." --pulsate --auto-close
+
 		done
 	else
 		echo "Cant install because no connectivity to AUR"
@@ -55,8 +56,7 @@ install_if_missing_with_yay() {
  }
 
 install_if_missing() {
-	(
-	sleep 2
+	 
     # Check if at least one package name is provided
     if [ "$#" -eq 0 ]; then
         echo "Usage: install_if_missing <package_name1> [package_name2 ...]"
@@ -72,7 +72,8 @@ install_if_missing() {
         else
 			if [ "$PACKAGE_NAME" != "--noconfirm" ]; then
 				echo "Package '$PACKAGE_NAME' does not exist. Installing..."
-				run_as_sudo pacman -S "$PACKAGE_NAME" --noconfirm
+				run_as_sudo pacman -S "$PACKAGE_NAME" --noconfirm | zenity --progress --title="Installation $PACKAGE_NAME in progress" --text="Working..." --pulsate --auto-close
+
 				echo "Checking that '$PACKAGE_NAME' was installed."
 				TEST_SUCCESS=$(pacman -Qi $PACKAGE_NAME)
 				if  [[ "$TEST_SUCCESS" =~ "x86" ]];  then
@@ -83,7 +84,6 @@ install_if_missing() {
 			fi
         fi
     done
-	) | zenity --progress --title="Installation in progress" --text="Working..." --pulsate --auto-close
 }
 
 get_password
