@@ -870,6 +870,7 @@ fnMessengers(){
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install MESSENGERS"
 			snap install telegram-desktop
+			install_if_missing deltachat-desktop
 			install_if_missing_with_yay viber
 			install_if_missing_with_yay whatsapp-for-linux
 
