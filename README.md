@@ -1,6 +1,10 @@
 # arch-postinstall
 Post installation for Archlinux
 
+# Screenshot
+
+![Screenshot arch-postinstall](https://dl.dropbox.com/scl/fi/f5y8yzfqyciifducbaenj/arch-postinstall.png?rlkey=ckqlnalloxd0by28hn1bxijvg&st=bg1wsd86)
+
 # Script logic in few sentences (approximate algorithm)
 
 1. Checks before installation whether AUR is available.
