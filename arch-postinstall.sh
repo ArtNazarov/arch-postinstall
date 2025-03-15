@@ -89,6 +89,39 @@ fnKeys() {
 	fi
 }
 
+fnInstallFonts(){
+	# ---------- INSTALL FONTS -----------
+	echo "Install fonts? [Y/N]?"
+	echo "Confirm [Y,n]"
+	read input
+	if [[ $input == "Y" || $input == "y" ]]; then
+		install_if_missing terminus-font
+		install_if_missing ttf-roboto
+		install_if_missing ttf-courier-prime-code
+		install_if_missing ttf-firacode-nerd
+		install_if_missing ttf-cascadia-mono-nerd
+		install_if_missing ttf-hack-nerd
+		install_if_missing ttf-sourcecodepro-nerd
+	else
+			echo "skipped fonts setup"
+	fi
+}
+
+fnInstallRadio(){
+	# ---------- INSTALL RADIO -----------
+	echo "Install radio? [Y/N]?"
+	echo "Confirm [Y,n]"
+	read input
+	if [[ $input == "Y" || $input == "y" ]]; then
+		install_if_missing goodvibes
+		install_if_missing radiotray-ng
+		install_if_missing shortwave
+	else
+			echo "skipped radio setup"
+	fi
+}
+
+
 fnMirrorsChange(){
 	# ---------- MIRRORS CHANGE -----------
 	echo "change mirrors ? [Y/N]?"
@@ -1032,7 +1065,7 @@ fnInstallOffice(){
 
 fnMenuMain(){
 	# Создаем массив с пунктами меню
-	items=("Office" "Keys" "Change mirrors" "Zip Tools" "Make Tools" "System Tools" "Networking Tools" "Block Ads" "Proc Freq" "Auto Proc Freq" "Update Grub" "Programming" "Developer Tools" "Mesa" "Video" "Vulkan" "Wine" "Pipewire" "Alsa" "PulseAudio" "Audio Player" "Bluetooth Tools" "Password Tool" "Messengers" "Clear Font Cache" "Security" "Display Manager" "Install DE" "Install Greeters" "Flatpak System" "Flatpak Soft" "Snap" "Tkg Kernel" "XanMod Kernel" "Zen Kernel" "Rng" "Dbus Broker" "Haveged" "Trim SSD" "Quit")
+	items=("Fonts" "Radio" "Office" "Keys" "Change mirrors" "Zip Tools" "Make Tools" "System Tools" "Networking Tools" "Block Ads" "Proc Freq" "Auto Proc Freq" "Update Grub" "Programming" "Developer Tools" "Mesa" "Video" "Vulkan" "Wine" "Pipewire" "Alsa" "PulseAudio" "Audio Player" "Bluetooth Tools" "Password Tool" "Messengers" "Clear Font Cache" "Security" "Display Manager" "Install DE" "Install Greeters" "Flatpak System" "Flatpak Soft" "Snap" "Tkg Kernel" "XanMod Kernel" "Zen Kernel" "Rng" "Dbus Broker" "Haveged" "Trim SSD" "Quit")
 
 	# Запускаем цикл для отображения меню
 	while item=$(zenity --title="Выберите пункт меню" --text="Выберите один из пунктов:" --list --column="Options" "${items[@]}")
@@ -1042,6 +1075,12 @@ fnMenuMain(){
 			"Quit")
 				echo "Quit";
 				break;;
+			"Fonts")
+				echo "Fonts";
+				fnInstallFonts;;
+			"Radio")
+				echo "Radio stations";
+				fnInstallRadio;;
 			"Office")
 				echo "Office tools";
 				fnInstallOffice;;
