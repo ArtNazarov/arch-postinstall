@@ -85,7 +85,7 @@ fnKeys() {
 		sudo pacman-key --populate archlinux
 		sudo pacman-key --refresh-keys
 	else
-			echo "skipped keys update"
+		echo "skipped keys update"
 	fi
 }
 
@@ -96,6 +96,7 @@ fnInstallGamingTools(){
 	if [[ $input == "Y" || $input == "y" ]]; then
 		install_if_missing dosbox mednafen mednaffe
 	else
+
 			echo "skipped gaming installation"
 	fi
 }
@@ -553,6 +554,8 @@ fnAudioPlayer(){
 	read input
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install audio players"
+			install_if_missing nature-sounds
+			install_if_missing qmmp
 			install_if_missing python-pip
 			pip install httpx
 			install_if_missing foobnix
@@ -870,7 +873,6 @@ fnMessengers(){
 	if [[ $input == "Y" || $input == "y" ]]; then
 			echo "begin install MESSENGERS"
 			snap install telegram-desktop
-			install_if_missing deltachat-desktop
 			install_if_missing_with_yay viber
 			install_if_missing_with_yay whatsapp-for-linux
 
