@@ -1,5 +1,29 @@
 #!/bin/bash
 
+# Check if zenity is installed
+if ! pacman -Q zenity &> /dev/null; then
+    echo "Zenity is not installed. Installing..."
+    sudo pacman -S zenity
+else
+    echo "Zenity is already installed."
+fi
+
+# Function to execute a command with sudo using the stored password
+run_as_sudo() {
+    echo "Try to run $@ with stored password ($PASSWORD)..."
+    zenity --info --title="Information" --text="sudo -S $@"
+    sudo "$@"
+}
+
+
+
+ABOUT_APP="Arch Linux post-install script"
+AUTHOR_INFO="author: artnazarov@internet.ru, 2022-2025"
+zenity --info --title="Information" --text="$ABOUT_APP\n$AUTHOR_INFO"
+
+echo $ABOUT_APP
+echo $AUTHOR_INFO
+
 # Define the URL to test
 URL="https://aur.archlinux.org/rpc?arg%5B%5D=wine-stable-mono&type=info&v=5"
 
@@ -16,22 +40,6 @@ fi
 # Output the result
 echo "AUR_USING=$AUR_USING"
 
-# Function to display a GUI password prompt using zenity
-get_password() {
-    PASSWORD=$(zenity --password --title="Authentication Required" --text="Please enter your sudo password:")
-    if [[ $? -ne 0 ]]; then
-        echo "Password entry canceled. Exit script..."
-		exit 1
-    fi
-}
-
-
-
-# Function to execute a command with sudo using the stored password
-run_as_sudo() {
-    echo "$PASSWORD" | sudo -S "$@"
-}
-
 
 install_if_missing_with_yay() {
 	 
@@ -47,8 +55,7 @@ install_if_missing_with_yay() {
 		for PACKAGE_NAME in "$@"; do
 			# Check if the package exists in the repositories (official or AUR)
 				echo "Package '$PACKAGE_NAME' does not exist. Installing with yay!.."
-				yay -S --noconfirm "$PACKAGE_NAME" 	| zenity --progress --title="Installation $PACKAGE_NAME in progress" --text="Working..." --pulsate --auto-close
-
+				yay -S --noconfirm "$PACKAGE_NAME"
 		done
 	else
 		echo "Cant install because no connectivity to AUR"
@@ -56,7 +63,7 @@ install_if_missing_with_yay() {
  }
 
 install_if_missing() {
-	 
+	sleep 2
     # Check if at least one package name is provided
     if [ "$#" -eq 0 ]; then
         echo "Usage: install_if_missing <package_name1> [package_name2 ...]"
@@ -72,8 +79,7 @@ install_if_missing() {
         else
 			if [ "$PACKAGE_NAME" != "--noconfirm" ]; then
 				echo "Package '$PACKAGE_NAME' does not exist. Installing..."
-				run_as_sudo pacman -S "$PACKAGE_NAME" --noconfirm | zenity --progress --title="Installation $PACKAGE_NAME in progress" --text="Working..." --pulsate --auto-close
-
+				run_as_sudo pacman -S "$PACKAGE_NAME" --noconfirm
 				echo "Checking that '$PACKAGE_NAME' was installed."
 				TEST_SUCCESS=$(pacman -Qi $PACKAGE_NAME)
 				if  [[ "$TEST_SUCCESS" =~ "x86" ]];  then
@@ -84,27 +90,8 @@ install_if_missing() {
 			fi
         fi
     done
+
 }
-
-get_password
-
-# Check if zenity is installed
-if ! pacman -Q zenity &> /dev/null; then
-    echo "Zenity is not installed. Installing..."
-    install_if_missing zenity
-else
-    echo "Zenity is already installed."
-fi
-
-ABOUT_APP="Arch linux post install script"
-AUTHOR_INFO="author: artnazarov@internet.ru, 2022-2025"
-
-zenity --info --title="Information" --text="$ABOUT_APP\n$AUTHOR_INFO"
-
-echo $ABOUT_APP
-echo $AUTHOR_INFO
-
-
 
 # Use Zenity to create a question dialog with OK and Cancel buttons
 response=$(zenity --question --text="Do you want to enable auto-confirm?" --ok-label="OK" --cancel-label="Cancel" --title="Confirmation")
@@ -1027,9 +1014,9 @@ fnInstallOffice(){
  
 	input=$(get_user_input "Install office? ")
 	if [[ $input == "Y" || $input == "y" ]]; then
-		install_if_missing   wps-office
-		install_if_missing   wps-office-fonts ttf-ms-fonts wps-office-mime
-		install_if_missing   wps-office-all-dicts-win-languages
+		install_if_missing wps-office
+		install_if_missing wps-office-fonts ttf-ms-fonts wps-office-mime
+		install_if_missing wps-office-all-dicts-win-languages
 	else
 			echo "skipped office install"
 	fi
